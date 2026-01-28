@@ -6,74 +6,70 @@
     <title>Force Calibration Calculator</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
-        /* 기본 스타일 및 모바일 최적화 */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding: 10px; background-color: #f8f9fa; color: #333; margin: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 10px; background-color: #f8f9fa; color: #333; margin: 0; }
         .container { max-width: 100%; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         
-        h2 { text-align: center; color: #007bff; font-size: 1.4rem; border-bottom: 2px solid #007bff; padding-bottom: 15px; margin-top: 0; }
+        /* 타이틀 및 제작자 섹션 */
+        .header-area { text-align: center; margin-bottom: 25px; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        h2 { color: #007bff; font-size: 1.4rem; margin: 0; letter-spacing: 0.5px; }
+        .creator-tag { color: #adb5bd; font-size: 0.85rem; font-weight: bold; margin-top: 5px; display: block; }
         
         .section { margin-bottom: 20px; padding: 15px; border: 1px solid #e9ecef; border-radius: 10px; background: #fff; }
         .section-title { font-weight: bold; font-size: 1.05rem; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; color: #495057; }
         
-        /* 터치 영역 최적화 (버튼 및 입력창) */
+        /* 입력창 스타일 */
         input, select { width: 100%; height: 48px; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
-        input:focus { border-color: #007bff; outline: none; box-shadow: 0 0 0 2px rgba(0,123,255,0.1); }
+        input:focus { border-color: #007bff; outline: none; }
 
-        /* 사진 업로드 영역 */
-        .upload-area { border: 2px dashed #007bff; text-align: center; padding: 30px 15px; cursor: pointer; background: #f0f7ff; border-radius: 8px; }
-        .upload-area strong { font-size: 1rem; color: #0056b3; display: block; margin-bottom: 5px; }
+        /* 사진 업로드 */
+        .upload-area { border: 2px dashed #007bff; text-align: center; padding: 25px 15px; cursor: pointer; background: #f0f7ff; border-radius: 8px; }
         #status { font-size: 0.85rem; text-align: center; color: #fd7e14; margin-top: 10px; font-weight: bold; }
 
-        /* 테이블 모바일 대응 */
+        /* 테이블 스크롤 */
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; min-width: 300px; }
         th, td { border: 1px solid #dee2e6; padding: 12px 8px; text-align: center; font-size: 0.9rem; }
-        th { background: #f1f3f5; font-weight: 600; }
+        th { background: #f1f3f5; }
         
-        /* 버튼 스타일 */
+        /* 버튼 공통 */
         .btn-calc { width: 100%; padding: 18px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.2rem; cursor: pointer; font-weight: bold; margin-top: 15px; }
-        .btn-reset { padding: 10px 15px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: bold; }
-        
-        /* 단위 선택 박스 */
-        .unit-box { background: #f1f3f5; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #dee2e6; }
-        .unit-box label { font-weight: bold; margin-bottom: 8px; display: block; font-size: 0.95rem; }
+        .btn-reset { padding: 8px 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
+        .btn-reset-sub { background: #6c757d; } /* 단위 변환기용 회색 버튼 */
 
-        /* 결과창 */
-        .result-item { padding: 15px; margin-bottom: 10px; border-left: 5px solid #28a745; background: #f4faf6; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        /* 결과 아이템 */
+        .result-item { padding: 15px; margin-bottom: 10px; border-left: 5px solid #28a745; background: #f4faf6; border-radius: 6px; }
         .result-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.95rem; }
         .error-val { font-weight: bold; font-size: 1.1rem; }
 
         /* 하단 단위 변환기 */
-        .converter-container { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .converter-container { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
         .conv-box { display: flex; align-items: center; gap: 10px; }
-        .conv-box label { min-width: 60px; font-weight: bold; font-size: 0.9rem; color: #666; }
+        .conv-box label { min-width: 60px; font-weight: bold; font-size: 0.85rem; color: #666; }
 
-        .footer { text-align: center; margin-top: 30px; padding: 20px 0; font-size: 0.85rem; color: #adb5bd; border-top: 1px solid #eee; }
-
-        /* 작은 화면용 추가 조정 */
         @media (max-width: 480px) {
-            h2 { font-size: 1.2rem; }
-            .section { padding: 10px; }
-            th, td { padding: 8px 4px; font-size: 0.85rem; }
+            h2 { font-size: 1.25rem; }
+            .section { padding: 12px; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>FORCE CALIBRATION CALCULATOR</h2>
+    <div class="header-area">
+        <h2>FORCE CALIBRATION CALCULATOR</h2>
+        <span class="creator-tag">Created by D</span>
+    </div>
 
     <div class="section">
         <span class="section-title">1단계: 기준기 교정 데이터 (사진 인식)</span>
         <div class="upload-area" onclick="document.getElementById('image-input').click()">
             <strong>📸 사진 업로드 / 촬영</strong>
-            <span>(하중kN 및 상수 자동 추출)</span>
             <input type="file" id="image-input" accept="image/*" style="display:none;">
         </div>
         <div id="status">데이터를 입력하거나 사진을 찍어주세요.</div>
         
         <div class="table-wrapper">
-            <table id="ref-table">
+            <table>
                 <thead><tr><th width="40">순번</th><th>하중 (kN)</th><th>기준 상수</th></tr></thead>
                 <tbody id="cal-table"></tbody>
             </table>
@@ -86,8 +82,8 @@
             <button class="btn-reset" onclick="resetInputs()">초기화</button>
         </div>
 
-        <div class="unit-box">
-            <label>통합 단위 선택</label>
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; display: block;">통합 단위 선택</label>
             <select id="global-unit-sel">
                 <option value="kgf">kgf</option>
                 <option value="gf">gf</option>
@@ -110,7 +106,10 @@
     <div id="result-area"></div>
 
     <div class="section" style="border-style: dashed; background: #fafafa;">
-        <span class="section-title">🔄 단위 변환 계산기</span>
+        <div class="section-title">
+            <span>🔄 단위 변환 계산기</span>
+            <button class="btn-reset btn-reset-sub" onclick="resetConverter()">초기화</button>
+        </div>
         <div class="converter-container">
             <div class="conv-box"><label>kgf</label><input type="number" id="c-kgf" oninput="convertUnits('kgf')"></div>
             <div class="conv-box"><label>gf</label><input type="number" id="c-gf" oninput="convertUnits('gf')"></div>
@@ -119,36 +118,38 @@
             <div class="conv-box"><label>lbf</label><input type="number" id="c-lbf" oninput="convertUnits('lbf')"></div>
         </div>
     </div>
-
-    <div class="footer">Created by D</div>
 </div>
 
 <script>
     const convFactors = { kn: 1, n: 1000, kgf: 101.9716, gf: 101971.6, lbf: 224.8089 };
     const calTable = document.getElementById('cal-table');
     const inputRows = document.getElementById('input-rows');
+    
+    // 초기 데이터 로드
     const initialKN = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const initialConst = [1998, 3996, 5994, 7994, 9994, 11995, 13996, 15998, 18002, 20005];
 
-    // 데이터 생성
     for(let i=0; i<10; i++) {
         calTable.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val" value="${initialKN[i]}"></td><td><input type="number" class="const-val" value="${initialConst[i]}"></td></tr>`;
     }
     for(let i=0; i<5; i++) {
-        inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val" placeholder="입력"></td><td><input type="number" class="ref-const" placeholder="상수"></td></tr>`;
+        inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val"></td><td><input type="number" class="ref-const"></td></tr>`;
     }
 
     function resetInputs() {
-        if(confirm("모든 입력값을 지울까요?")) {
+        if(confirm("입력값을 모두 지울까요?")) {
             document.querySelectorAll('.comp-val, .ref-const').forEach(i => i.value = '');
             document.getElementById('result-area').innerHTML = '';
         }
     }
 
-    // OCR 로직
+    function resetConverter() {
+        document.querySelectorAll('.converter-container input').forEach(i => i.value = '');
+    }
+
     document.getElementById('image-input').addEventListener('change', async (e) => {
         const file = e.target.files[0]; if (!file) return;
-        const status = document.getElementById('status'); status.innerText = "🌀 사진 분석 중... 잠시만 기다려주세요.";
+        const status = document.getElementById('status'); status.innerText = "🌀 사진 분석 중...";
         try {
             const worker = await Tesseract.createWorker('kor+eng');
             const { data: { text } } = await worker.recognize(file);
@@ -159,12 +160,10 @@
                 if (n > 0 && n <= 500 && kP < 10) knI[kP++].value = n;
                 else if (n > 500 && cP < 10) csI[cP++].value = n;
             });
-            status.innerText = "✅ 인식 완료! 값을 확인해 주세요.";
-            await worker.terminate();
-        } catch(err) { status.innerText = "❌ 분석 실패. 수동 입력을 부탁드립니다."; }
+            status.innerText = "✅ 인식 완료!"; await worker.terminate();
+        } catch(err) { status.innerText = "❌ 분석 실패."; }
     });
 
-    // 계산 로직
     function calculateAll() {
         const knT = Array.from(document.querySelectorAll('.kn-val')).map(i => parseFloat(i.value));
         const csT = Array.from(document.querySelectorAll('.const-val')).map(i => parseFloat(i.value));
@@ -185,12 +184,11 @@
             const convInd = valInKN * slope;
             const errP = ((convInd - ref) / ref) * 100;
 
-            const color = errP >= 0 ? '#007bff' : '#d93025';
             resA.innerHTML += `
                 <div class="result-item">
-                    <div class="result-row"><strong>측정 번호 ${idx+1}</strong> <span>(${knT[bI]}kN 기준)</span></div>
+                    <div class="result-row"><strong>측정 ${idx+1}</strong> <span>(${knT[bI]}kN 기준)</span></div>
                     <div class="result-row"><span>환산지시치:</span> <span>${convInd.toFixed(2)}</span></div>
-                    <div class="result-row"><span>오차율:</span> <span class="error-val" style="color:${color}">${errP.toFixed(4)}%</span></div>
+                    <div class="result-row"><span>오차율:</span> <span class="error-val" style="color:${errP>=0?'#007bff':'#d93025'}">${errP.toFixed(4)}%</span></div>
                 </div>`;
         });
         window.scrollTo({ top: resA.offsetTop - 20, behavior: 'smooth' });
