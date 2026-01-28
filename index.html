@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Force Calibration Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; background-color: #f1f3f5; color: #333; line-height: 1.5; }
+        .container { max-width: 950px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); position: relative; }
+        h2 { text-align: center; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .section { margin-bottom: 25px; padding: 20px; border: 1px solid #dee2e6; border-radius: 12px; background: #fff; }
+        .section-title { font-weight: bold; font-size: 1.1em; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; color: #495057; }
+        
+        /* 사진 업로드 */
+        .upload-area { border: 2px dashed #007bff; text-align: center; padding: 25px; cursor: pointer; background: #f8fbff; border-radius: 10px; transition: 0.3s; }
+        .upload-area:hover { background: #eef5ff; }
+        #status { font-size: 0.85em; text-align: center; color: #fd7e14; margin-top: 10px; font-weight: bold; }
+
+        /* 테이블 및 입력 */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
+        th, td { border: 1px solid #dee2e6; padding: 10px; text-align: center; }
+        th { background: #f1f3f5; font-weight: 600; }
+        input, select { width: 90%; padding: 8px; border: 1px solid #ced4da; border-radius: 5px; font-size: 1em; }
+        
+        .btn-calc { width: 100%; padding: 18px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.2em; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        .btn-calc:hover { background: #218838; }
+        .btn-reset { padding: 8px 15px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.85em; }
+        
+        .unit-box { background: #e9ecef; padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 20px; margin-bottom: 10px; border: 1px solid #ced4da; }
+        
+        /* 결과창 */
+        #result-area { margin-top: 20px; }
+        .result-item { padding: 15px; margin-bottom: 8px; border-left: 6px solid #28a745; background: #f4faf6; display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; border-radius: 4px; }
+        .error-val { font-weight: bold; font-size: 1.2em; text-align: right; }
+
+        /* 하단 단위 변환기 */
+        .converter-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
+        .conv-box label { font-size: 0.8em; font-weight: bold; display: block; margin-bottom: 5px; color: #666; }
+
+        /* Footer */
+        .footer { text-align: center; margin-top: 30px; font-size: 0.9em; color: #adb5bd; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Force Calibration Calculator</h2>
+
+    <div class="section">
+        <span class="section-title">1단계: 기준기 교정 데이터 (사진 인식 지원)</span>
+        <div class="upload-area" onclick="document.getElementById('image-input').click()">
+            <strong>📸 사진 업로드 / 촬영 (하중kN 및 상수 자동 추출)</strong>
+            <input type="file" id="image-input" accept="image/*" style="display:none;">
+        </div>
+        <div id="status">대기 중...</div>
+        
+        <table>
+            <thead><tr><th>순번</th><th>실하중 (kN)</th><th>기준 상수 (지시값)</th></tr></thead>
+            <tbody id="cal-table"></tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">
+            <span>2단계: 측정값 입력 (5개 병렬 계산)</span>
+            <button class="btn-reset" onclick="resetInputs()">입력값 초기화</button>
+        </div>
+
+        <div class="unit-box">
+            <strong>통합 단위 선택:</strong>
+            <select id="global-unit-sel" style="width: auto; padding: 5px 15px;">
+                <option value="kgf">kgf</option>
+                <option value="gf">gf</option>
+                <option value="kn">kN</option>
+                <option value="n">N</option>
+                <option value="lbf">lbf(ibf)</option>
+            </select>
+            <span style="font-size: 0.85em; color: #6c757d;">* 선택한 단위가 5개 행에 모두 적용됩니다.</span>
+        </div>
+
+        <table>
+            <thead><tr><th width="50">#</th><th>비교값 (Input)</th><th>기준기 상수 (Ref)</th></tr></thead>
+            <tbody id="input-rows"></tbody>
+        </table>
+        
+        <button class="btn-calc" onclick="calculateAll()">전체 오차 분석 시작</button>
+    </div>
+
+    <div id="result-area"></div>
+
+    <div class="section" style="background: #fdfdfd; border-style: dashed;">
+        <span class="section-title">🔄 단위 변환 계산기 (참고용)</span>
+        <div class="converter-grid">
+            <div class="conv-box"><label>kgf</label><input type="number" id="c-kgf" oninput="convertUnits('kgf')"></div>
+            <div class="conv-box"><label>gf</label><input type="number" id="c-gf" oninput="convertUnits('gf')"></div>
+            <div class="conv-box"><label>kN</label><input type="number" id="c-kn" oninput="convertUnits('kn')"></div>
+            <div class="conv-box"><label>N</label><input type="number" id="c-n" oninput="convertUnits('n')"></div>
+            <div class="conv-box"><label>lbf (ibf)</label><input type="number" id="c-lbf" oninput="convertUnits('lbf')"></div>
+        </div>
+    </div>
+
+    <div class="footer">Created by D</div>
+</div>
+
+<script>
+    const convFactors = { kn: 1, n: 1000, kgf: 101.9716, gf: 101971.6, lbf: 224.8089 };
+
+    const calTable = document.getElementById('cal-table');
+    const inputRows = document.getElementById('input-rows');
+    const initialKN = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const initialConst = [1998, 3996, 5994, 7994, 9994, 11995, 13996, 15998, 18002, 20005];
+
+    for(let i=0; i<10; i++) {
+        calTable.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val" value="${initialKN[i]}"></td><td><input type="number" class="const-val" value="${initialConst[i]}"></td></tr>`;
+    }
+    for(let i=0; i<5; i++) {
+        inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val"></td><td><input type="number" class="ref-const"></td></tr>`;
+    }
+
+    function resetInputs() {
+        if(confirm("모든 입력값을 초기화하시겠습니까?")) {
+            document.querySelectorAll('.comp-val, .ref-const').forEach(i => i.value = '');
+            document.getElementById('result-area').innerHTML = '';
+        }
+    }
+
+    document.getElementById('image-input').addEventListener('change', async (e) => {
+        const file = e.target.files[0]; if (!file) return;
+        const status = document.getElementById('status'); status.innerText = "🌀 표 분석 중입니다...";
+        try {
+            const worker = await Tesseract.createWorker('kor+eng');
+            const { data: { text } } = await worker.recognize(file);
+            const nums = text.match(/\d+/g).map(Number);
+            const knI = document.querySelectorAll('.kn-val'), csI = document.querySelectorAll('.const-val');
+            let kP = 0, cP = 0;
+            nums.forEach(n => {
+                if (n > 0 && n <= 500 && kP < 10) knI[kP++].value = n;
+                else if (n > 500 && cP < 10) csI[cP++].value = n;
+            });
+            status.innerText = "✅ 인식 완료! 값을 확인해 주세요.";
+            await worker.terminate();
+        } catch(err) { status.innerText = "❌ 분석 실패. 수동 입력이 필요합니다."; }
+    });
+
+    function calculateAll() {
+        const knT = Array.from(document.querySelectorAll('.kn-val')).map(i => parseFloat(i.value));
+        const csT = Array.from(document.querySelectorAll('.const-val')).map(i => parseFloat(i.value));
+        const unit = document.getElementById('global-unit-sel').value;
+        const resA = document.getElementById('result-area');
+        resA.innerHTML = '<span class="section-title">📊 분석 결과</span>';
+
+        document.querySelectorAll('#input-rows tr').forEach((row, idx) => {
+            const val = parseFloat(row.querySelector('.comp-val').value);
+            const ref = parseFloat(row.querySelector('.ref-const').value);
+            if (isNaN(val) || isNaN(ref)) return;
+
+            const valInKN = val / convFactors[unit];
+            let bI = 0, mD = Math.abs(csT[0] - ref);
+            for(let j=1; j<10; j++) { let d = Math.abs(csT[j] - ref); if(d < mD) { mD = d; bI = j; } }
+
+            const slope = csT[bI] / knT[bI];
+            const convInd = valInKN * slope;
+            const errP = ((convInd - ref) / ref) * 100;
+
+            const color = errP >= 0 ? '#007bff' : '#d93025';
+            resA.innerHTML += `<div class="result-item"><span><strong>번호 ${idx+1}</strong> (${knT[bI]}kN 지점)</span><span style="text-align:center;">환산지시치: ${convInd.toFixed(2)}</span><span class="error-val" style="color:${color}">${errP.toFixed(4)}%</span></div>`;
+        });
+    }
+
+    function convertUnits(type) {
+        const val = parseFloat(document.getElementById('c-' + type).value);
+        if (isNaN(val)) return;
+        const vInKN = val / convFactors[type];
+        for (let u in convFactors) if (u !== type) document.getElementById('c-' + u).value = (vInKN * convFactors[u]).toFixed(4);
+    }
+</script>
+</body>
+</html>
