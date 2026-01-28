@@ -6,50 +6,27 @@
     <title>Force Calibration Calculator</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 10px; background-color: #f8f9fa; color: #333; margin: 0; }
+        body { font-family: -apple-system, sans-serif; padding: 10px; background-color: #f8f9fa; color: #333; margin: 0; }
         .container { max-width: 100%; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        
-        /* 타이틀 및 제작자 섹션 */
-        .header-area { text-align: center; margin-bottom: 25px; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
-        h2 { color: #007bff; font-size: 1.4rem; margin: 0; letter-spacing: 0.5px; }
-        .creator-tag { color: #adb5bd; font-size: 0.85rem; font-weight: bold; margin-top: 5px; display: block; }
-        
+        .header-area { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        h2 { color: #007bff; font-size: 1.3rem; margin: 0; }
+        .creator-tag { color: #adb5bd; font-size: 0.8rem; font-weight: bold; margin-top: 5px; display: block; }
         .section { margin-bottom: 20px; padding: 15px; border: 1px solid #e9ecef; border-radius: 10px; background: #fff; }
-        .section-title { font-weight: bold; font-size: 1.05rem; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; color: #495057; }
-        
-        /* 입력창 스타일 */
-        input, select { width: 100%; height: 48px; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
-        input:focus { border-color: #007bff; outline: none; }
-
-        /* 사진 업로드 */
-        .upload-area { border: 2px dashed #007bff; text-align: center; padding: 25px 15px; cursor: pointer; background: #f0f7ff; border-radius: 8px; }
-        #status { font-size: 0.85rem; text-align: center; color: #fd7e14; margin-top: 10px; font-weight: bold; }
-
-        /* 테이블 스크롤 */
-        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 300px; }
-        th, td { border: 1px solid #dee2e6; padding: 12px 8px; text-align: center; font-size: 0.9rem; }
+        .section-title { font-weight: bold; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        input, select { width: 100%; height: 44px; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        .upload-area { border: 2px dashed #007bff; text-align: center; padding: 20px 10px; cursor: pointer; background: #f0f7ff; border-radius: 8px; margin-bottom: 10px; }
+        #status { font-size: 0.8rem; text-align: center; color: #fd7e14; margin-bottom: 10px; font-weight: bold; }
+        .table-wrapper { overflow-x: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 280px; }
+        th, td { border: 1px solid #dee2e6; padding: 10px 5px; text-align: center; font-size: 0.85rem; }
         th { background: #f1f3f5; }
-        
-        /* 버튼 공통 */
-        .btn-calc { width: 100%; padding: 18px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.2rem; cursor: pointer; font-weight: bold; margin-top: 15px; }
-        .btn-reset { padding: 8px 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
-        .btn-reset-sub { background: #6c757d; } /* 단위 변환기용 회색 버튼 */
-
-        /* 결과 아이템 */
-        .result-item { padding: 15px; margin-bottom: 10px; border-left: 5px solid #28a745; background: #f4faf6; border-radius: 6px; }
-        .result-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.95rem; }
-        .error-val { font-weight: bold; font-size: 1.1rem; }
-
-        /* 하단 단위 변환기 */
-        .converter-container { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-        .conv-box { display: flex; align-items: center; gap: 10px; }
-        .conv-box label { min-width: 60px; font-weight: bold; font-size: 0.85rem; color: #666; }
-
-        @media (max-width: 480px) {
-            h2 { font-size: 1.25rem; }
-            .section { padding: 12px; }
-        }
+        .btn-calc { width: 100%; padding: 16px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn-reset { padding: 6px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+        .btn-reset-sub { background: #6c757d; }
+        .result-item { padding: 12px; margin-bottom: 8px; border-left: 5px solid #28a745; background: #f4faf6; border-radius: 6px; font-size: 0.9rem; }
+        .converter-container { display: flex; flex-direction: column; gap: 8px; }
+        .conv-box { display: flex; align-items: center; gap: 8px; }
+        .conv-box label { min-width: 50px; font-weight: bold; font-size: 0.8rem; color: #666; }
     </style>
 </head>
 <body>
@@ -61,16 +38,27 @@
     </div>
 
     <div class="section">
-        <span class="section-title">1단계: 기준기 교정 데이터 (사진 인식)</span>
+        <div class="section-title">
+            <span>1단계: 기준기 데이터 (인식 강화)</span>
+            <button class="btn-reset" onclick="resetTable('cal-table')">초기화</button>
+        </div>
         <div class="upload-area" onclick="document.getElementById('image-input').click()">
             <strong>📸 사진 업로드 / 촬영</strong>
             <input type="file" id="image-input" accept="image/*" style="display:none;">
         </div>
-        <div id="status">데이터를 입력하거나 사진을 찍어주세요.</div>
+        <div id="status">표의 왼쪽 1, 2열 데이터를 우선 인식합니다.</div>
         
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 0.85rem; font-weight: bold;">하중 단위 선택</label>
+            <select id="ref-unit-sel">
+                <option value="kn">kN (킬로뉴턴)</option>
+                <option value="n">N (뉴턴)</option>
+            </select>
+        </div>
+
         <div class="table-wrapper">
             <table>
-                <thead><tr><th width="40">순번</th><th>하중 (kN)</th><th>기준 상수</th></tr></thead>
+                <thead><tr><th width="30">#</th><th>하중</th><th>기준 상수</th></tr></thead>
                 <tbody id="cal-table"></tbody>
             </table>
         </div>
@@ -79,27 +67,22 @@
     <div class="section">
         <div class="section-title">
             <span>2단계: 측정값 입력</span>
-            <button class="btn-reset" onclick="resetInputs()">초기화</button>
+            <button class="btn-reset" onclick="resetTable('input-rows')">초기화</button>
         </div>
-
-        <div style="margin-bottom: 15px;">
-            <label style="font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; display: block;">통합 단위 선택</label>
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 0.85rem; font-weight: bold;">통합 단위 선택</label>
             <select id="global-unit-sel">
-                <option value="kgf">kgf</option>
-                <option value="gf">gf</option>
-                <option value="kn">kN</option>
-                <option value="n">N</option>
+                <option value="kgf">kgf</option><option value="gf">gf</option>
+                <option value="kn">kN</option><option value="n">N</option>
                 <option value="lbf">lbf (ibf)</option>
             </select>
         </div>
-
         <div class="table-wrapper">
             <table>
-                <thead><tr><th width="40">#</th><th>비교값 (Input)</th><th>기준기 상수 (Ref)</th></tr></thead>
+                <thead><tr><th width="30">#</th><th>비교값 (Input)</th><th>기준기 상수 (Ref)</th></tr></thead>
                 <tbody id="input-rows"></tbody>
             </table>
         </div>
-        
         <button class="btn-calc" onclick="calculateAll()">분석 시작</button>
     </div>
 
@@ -125,47 +108,54 @@
     const calTable = document.getElementById('cal-table');
     const inputRows = document.getElementById('input-rows');
     
-    // 초기 데이터 로드
-    const initialKN = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const initialConst = [1998, 3996, 5994, 7994, 9994, 11995, 13996, 15998, 18002, 20005];
+    // 초기 행 생성
+    for(let i=0; i<10; i++) calTable.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val" value="${i}"></td><td><input type="number" class="const-val" value="${i*2000}"></td></tr>`;
+    for(let i=0; i<5; i++) inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val"></td><td><input type="number" class="ref-const"></td></tr>`;
 
-    for(let i=0; i<10; i++) {
-        calTable.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val" value="${initialKN[i]}"></td><td><input type="number" class="const-val" value="${initialConst[i]}"></td></tr>`;
-    }
-    for(let i=0; i<5; i++) {
-        inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val"></td><td><input type="number" class="ref-const"></td></tr>`;
-    }
-
-    function resetInputs() {
-        if(confirm("입력값을 모두 지울까요?")) {
-            document.querySelectorAll('.comp-val, .ref-const').forEach(i => i.value = '');
-            document.getElementById('result-area').innerHTML = '';
-        }
+    function resetTable(id) {
+        if(!confirm("초기화하시겠습니까?")) return;
+        document.querySelectorAll(`#${id} input`).forEach(i => {
+            if(!i.classList.contains('row-idx')) i.value = '';
+        });
+        if(id === 'input-rows') document.getElementById('result-area').innerHTML = '';
     }
 
-    function resetConverter() {
-        document.querySelectorAll('.converter-container input').forEach(i => i.value = '');
-    }
+    function resetConverter() { document.querySelectorAll('.converter-container input').forEach(i => i.value = ''); }
 
+    // 고성능 OCR 로직: 화이트리스트 및 행 분석 강화
     document.getElementById('image-input').addEventListener('change', async (e) => {
         const file = e.target.files[0]; if (!file) return;
-        const status = document.getElementById('status'); status.innerText = "🌀 사진 분석 중...";
+        const status = document.getElementById('status'); status.innerText = "🌀 숫자 집중 분석 중... (정면 사진 권장)";
         try {
-            const worker = await Tesseract.createWorker('kor+eng');
-            const { data: { text } } = await worker.recognize(file);
-            const nums = text.match(/\d+/g).map(Number);
+            const worker = await Tesseract.createWorker('eng'); // 숫자 인식에는 영문 엔진이 더 정확함
+            await worker.setParameters({ tessedit_char_whitelist: '0123456789.' }); // 숫자와 소수점만 허용
+            
+            const { data } = await worker.recognize(file);
+            const lines = data.lines;
             const knI = document.querySelectorAll('.kn-val'), csI = document.querySelectorAll('.const-val');
-            let kP = 0, cP = 0;
-            nums.forEach(n => {
-                if (n > 0 && n <= 500 && kP < 10) knI[kP++].value = n;
-                else if (n > 500 && cP < 10) csI[cP++].value = n;
+            
+            let rowIdx = 0;
+            lines.forEach(line => {
+                // 한 줄에서 숫자 덩어리들을 찾음
+                const nums = line.text.match(/\d+(\.\d+)?/g);
+                if (nums && nums.length >= 2 && rowIdx < 10) {
+                    // 왼쪽에서 첫 번째는 하중, 두 번째는 상수로 입력
+                    knI[rowIdx].value = nums[0];
+                    csI[rowIdx].value = nums[1];
+                    rowIdx++;
+                }
             });
-            status.innerText = "✅ 인식 완료!"; await worker.terminate();
-        } catch(err) { status.innerText = "❌ 분석 실패."; }
+            status.innerText = rowIdx > 0 ? "✅ 왼쪽 1, 2열 인식 성공! 값을 확인하세요." : "❌ 숫자를 찾지 못했습니다. 다시 시도해 주세요.";
+            await worker.terminate();
+        } catch(err) { status.innerText = "❌ 인식 오류 발생."; }
     });
 
     function calculateAll() {
-        const knT = Array.from(document.querySelectorAll('.kn-val')).map(i => parseFloat(i.value));
+        const refUnit = document.getElementById('ref-unit-sel').value;
+        const knT = Array.from(document.querySelectorAll('.kn-val')).map(i => {
+            let val = parseFloat(i.value);
+            return refUnit === 'n' ? val / 1000 : val; // N 선택 시 kN으로 변환하여 계산
+        });
         const csT = Array.from(document.querySelectorAll('.const-val')).map(i => parseFloat(i.value));
         const unit = document.getElementById('global-unit-sel').value;
         const resA = document.getElementById('result-area');
@@ -178,18 +168,16 @@
 
             const valInKN = val / convFactors[unit];
             let bI = 0, mD = Math.abs(csT[0] - ref);
-            for(let j=1; j<10; j++) { let d = Math.abs(csT[j] - ref); if(d < mD) { mD = d; bI = j; } }
+            for(let j=1; j<knT.length; j++) {
+                let d = Math.abs(csT[j] - ref);
+                if(d < mD) { mD = d; bI = j; }
+            }
 
-            const slope = csT[bI] / knT[bI];
+            const slope = knT[bI] === 0 ? 0 : csT[bI] / knT[bI];
             const convInd = valInKN * slope;
             const errP = ((convInd - ref) / ref) * 100;
 
-            resA.innerHTML += `
-                <div class="result-item">
-                    <div class="result-row"><strong>측정 ${idx+1}</strong> <span>(${knT[bI]}kN 기준)</span></div>
-                    <div class="result-row"><span>환산지시치:</span> <span>${convInd.toFixed(2)}</span></div>
-                    <div class="result-row"><span>오차율:</span> <span class="error-val" style="color:${errP>=0?'#007bff':'#d93025'}">${errP.toFixed(4)}%</span></div>
-                </div>`;
+            resA.innerHTML += `<div class="result-item"><strong>${idx+1}번</strong> (${knT[bI]}kN 기준) | 오차: <span style="font-weight:bold; color:${errP>=0?'#007bff':'#d93025'}">${errP.toFixed(4)}%</span><br><small>환산치: ${convInd.toFixed(2)}</small></div>`;
         });
         window.scrollTo({ top: resA.offsetTop - 20, behavior: 'smooth' });
     }
