@@ -33,7 +33,7 @@
         .converter-container { display: flex; flex-direction: column; gap: 8px; }
         .conv-box { display: flex; align-items: center; gap: 8px; }
         .conv-box label { min-width: 50px; font-weight: bold; font-size: 0.8rem; color: #666; }
-        canvas { display: none; } /* 전처리용 캔버스 숨김 */
+        canvas { display: none; }
     </style>
 </head>
 <body>
@@ -55,11 +55,11 @@
         </div>
         <div id="status">표의 왼쪽 2열 숫자만 집중 분석합니다.</div>
         <div class="guide-text">
-            ※ '증가시 평균 순 지시값'을 기준으로 인식하며, 0 값은 제외됩니다. <b>정면에서 밝게 찍으면 인식률이 더 올라갑니다.</b>
+            ※ '증가시 평균 순 지시값'을 기준으로 인식하며, 0 값은 제외됩니다. <b>정면 사진 권장.</b>
         </div>
         
         <div style="margin-bottom: 10px;">
-            <label style="font-size: 0.85rem; font-weight: bold;">하중 단위</label>
+            <label style="font-size: 0.85rem; font-weight: bold;">기준 하중 단위</label>
             <select id="ref-unit-sel">
                 <option value="kn">kN (킬로뉴턴)</option>
                 <option value="n">N (뉴턴)</option>
@@ -79,8 +79,16 @@
             <span>2단계: 측정값 입력</span>
             <button class="btn-reset" onclick="resetTable('input-rows')">초기화</button>
         </div>
+        <div style="margin-bottom: 12px;">
+            <label style="font-size: 0.85rem; font-weight: bold;">통합 단위 선택</label>
+            <select id="global-unit-sel">
+                <option value="kgf">kgf</option><option value="gf">gf</option>
+                <option value="kn">kN</option><option value="n">N</option>
+                <option value="lbf">lbf (ibf)</option>
+            </select>
+        </div>
         <table>
-            <thead><tr><th width="30">#</th><th>비교값 (Input)</th><th>기준기 상수 (Ref)</th></tr></thead>
+            <thead><tr><th width="30">#</th><th>측정값 (Input)</th><th>기준기 상수 (Ref)</th></tr></thead>
             <tbody id="input-rows"></tbody>
         </table>
         <button class="btn-calc" onclick="calculateAll()">분석 시작</button>
@@ -111,7 +119,7 @@
     const inputRows = document.getElementById('input-rows');
     
     for(let i=0; i<10; i++) calTable.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val"></td><td><input type="number" class="const-val"></td></tr>`;
-    for(let i=0; i<5; i++) inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val"></td><td><input type="number" class="ref-const"></td></tr>`;
+    for(let i=0; i<5; i++) inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val" placeholder="측정값"></td><td><input type="number" class="ref-const" placeholder="상수"></td></tr>`;
 
     function resetTable(id) {
         if(!confirm("초기화하시겠습니까?")) return;
@@ -119,19 +127,16 @@
     }
     function resetConverter() { document.querySelectorAll('.converter-container input').forEach(i => i.value = ''); }
 
-    // 📸 이미지 전처리 함수 (흑백 대비 강화)
     function preprocess(img) {
         const canvas = document.getElementById('preprocess-canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
+        canvas.width = img.width; canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
-        
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
         for (let i = 0; i < data.length; i += 4) {
             const gray = data[i] * 0.3 + data[i+1] * 0.59 + data[i+2] * 0.11;
-            const contrast = gray > 128 ? 255 : 0; // 이진화 (B&W)
+            const contrast = gray > 128 ? 255 : 0;
             data[i] = data[i+1] = data[i+2] = contrast;
         }
         ctx.putImageData(imageData, 0, 0);
@@ -140,33 +145,24 @@
 
     document.getElementById('image-input').addEventListener('change', async (e) => {
         const file = e.target.files[0]; if (!file) return;
-        const status = document.getElementById('status'); status.innerText = "🌀 전처리 및 분석 중...";
+        const status = document.getElementById('status'); status.innerText = "🌀 표 구조 분석 및 숫자 추출 중...";
 
         const reader = new FileReader();
         reader.onload = async (event) => {
             const img = new Image();
             img.onload = async () => {
-                const processedURL = preprocess(img); // 흑백 변환 적용
-                
+                const processedURL = preprocess(img);
                 try {
                     const worker = await Tesseract.createWorker('eng');
                     await worker.setParameters({ tessedit_char_whitelist: '0123456789' });
-                    
                     const { data } = await worker.recognize(processedURL);
-                    const words = data.words.map(w => ({
-                        text: parseInt(w.text),
-                        x: w.bbox.x0,
-                        y: w.bbox.y0
-                    })).filter(w => !isNaN(w.text) && w.text !== 0);
+                    const words = data.words.map(w => ({ text: parseInt(w.text), x: w.bbox.x0, y: w.bbox.y0 })).filter(w => !isNaN(w.text) && w.text !== 0);
 
-                    // 1. 행 그룹화 (Y좌표 기준)
                     let rows = [];
                     words.forEach(word => {
                         let row = rows.find(r => Math.abs(r[0].y - word.y) < 25);
                         if (row) row.push(word); else rows.push([word]);
                     });
-
-                    // 2. 행 내부 정렬(X축) 및 전체 행 정렬(Y축)
                     rows.forEach(r => r.sort((a, b) => a.x - b.x));
                     rows.sort((a, b) => a[0].y - b[0].y);
 
@@ -174,15 +170,14 @@
                     let fillIdx = 0;
                     rows.forEach(row => {
                         if (row.length >= 2 && fillIdx < 10) {
-                            // 왼쪽 하단 영역이므로, 가장 왼쪽 2개 값을 가져옴
                             knI[fillIdx].value = row[0].text;
                             csI[fillIdx].value = row[1].text;
                             fillIdx++;
                         }
                     });
-                    status.innerText = fillIdx > 0 ? "✅ 인식 성공! 값을 확인하세요." : "❌ 다시 시도해 주세요.";
+                    status.innerText = fillIdx > 0 ? "✅ 인식 성공! 데이터를 확인하세요." : "❌ 다시 촬영해 주세요.";
                     await worker.terminate();
-                } catch(err) { status.innerText = "❌ 인식 오류 발생."; }
+                } catch(err) { status.innerText = "❌ 인식 오류."; }
             };
             img.src = event.target.result;
         };
@@ -197,7 +192,7 @@
         });
         const csT = Array.from(document.querySelectorAll('.const-val')).map(i => parseFloat(i.value));
         const resA = document.getElementById('result-area');
-        const unit = document.getElementById('global-unit-sel')?.value || 'kgf';
+        const unit = document.getElementById('global-unit-sel').value;
 
         resA.innerHTML = '<span class="section-title">📊 분석 결과</span>';
         document.querySelectorAll('#input-rows tr').forEach((row, idx) => {
@@ -212,11 +207,17 @@
             }
             if (!knT[bI]) return;
 
-            const slope = csT[bI] / knT[bI];
+            const tableKN = knT[bI]; // 기준값 (kN)
+            const slope = csT[bI] / tableKN;
             const convInd = valInKN * slope;
             const errP = ((convInd - ref) / ref) * 100;
 
-            resA.innerHTML += `<div class="result-item"><strong>${idx+1}번</strong> | 오차: <span style="font-weight:bold; color:${errP>=0?'#007bff':'#d93025'}">${errP.toFixed(4)}%</span><br><small>기준: ${knT[bI]}kN | 환산: ${convInd.toFixed(2)}</small></div>`;
+            const color = errP >= 0 ? '#007bff' : '#d93025';
+            resA.innerHTML += `
+                <div class="result-item">
+                    <strong>${idx+1}번</strong> | 오차: <span style="font-weight:bold; color:${color}">${errP.toFixed(4)}%</span><br>
+                    <small>측정값 kn: ${valInKN.toFixed(4)} kn 기준값 kn: ${tableKN} kn</small>
+                </div>`;
         });
         window.scrollTo({ top: resA.offsetTop - 20, behavior: 'smooth' });
     }
