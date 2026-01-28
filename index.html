@@ -27,12 +27,10 @@
         .btn-reset { padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.75rem; }
         .btn-reset-sub { background: #6c757d; }
         
-        /* 캡쳐 영역 스타일 */
         #capture-area { background: white; padding: 10px; border-radius: 8px; }
         .result-item { padding: 12px; margin-bottom: 8px; border-left: 5px solid #28a745; background: #f4faf6; border-radius: 6px; font-size: 0.88rem; line-height: 1.5; }
         .error-text { font-weight: bold; font-size: 1.1rem; }
         
-        /* 정보 입력란 스타일 */
         .info-section { display: none; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ced4da; }
         .info-group { margin-bottom: 8px; }
         .info-group label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 3px; }
@@ -89,20 +87,10 @@
 
     <div id="capture-area">
         <div id="result-area"></div>
-        
         <div id="info-section" class="info-section">
-            <div class="info-group">
-                <label>업체명</label>
-                <input type="text" id="company-name" placeholder="입력하세요">
-            </div>
-            <div class="info-group">
-                <label>제조사</label>
-                <input type="text" id="manufacturer" placeholder="입력하세요">
-            </div>
-            <div class="info-group">
-                <label>S/N</label>
-                <input type="text" id="serial-number" placeholder="입력하세요">
-            </div>
+            <div class="info-group"><label>업체명</label><input type="text" id="company-name" placeholder="입력하세요"></div>
+            <div class="info-group"><label>제조사</label><input type="text" id="manufacturer" placeholder="입력하세요"></div>
+            <div class="info-group"><label>S/N</label><input type="text" id="serial-number" placeholder="입력하세요"></div>
         </div>
     </div>
 
@@ -127,7 +115,6 @@
     const calTable = document.getElementById('cal-table');
     const inputRows = document.getElementById('input-rows');
     
-    // 5행 생성
     for(let i=0; i<5; i++) calTable.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val"></td><td><input type="number" class="const-val"></td></tr>`;
     for(let i=0; i<5; i++) inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val"></td><td><input type="number" class="ref-const"></td></tr>`;
 
@@ -144,7 +131,6 @@
         const resA = document.getElementById('result-area');
 
         resA.innerHTML = '<span class="section-title" style="margin-top:10px;">결과</span>';
-        
         const displayUnit = (unit === 'gf' || unit === 'n') ? 'N' : 'kN';
         const factor = displayUnit === 'N' ? convFactors.n : convFactors.kn;
 
@@ -164,18 +150,17 @@
             const tableKN = knT[bI];
             const tableConstant = csT[bI];
             const slope = tableConstant / tableKN;
-
             const valInDisplayUnit = (val / convFactors[unit]) * factor;
             const refInDisplayUnit = (ref / slope) * factor;
             const errP = ((valInDisplayUnit - refInDisplayUnit) / refInDisplayUnit) * 100;
-
             const sign = errP >= 0 ? "+" : "";
             hasResult = true;
 
+            // 소수점 3자리(.toFixed(3)) 적용
             resA.innerHTML += `
                 <div class="result-item">
-                    <strong>측정${idx+1}</strong> | <span class="error-text" style="color:${errP>=0?'#007bff':'#d93025'}">${sign}${errP.toFixed(4)}%</span><br>
-                    <span>측정값 ${valInDisplayUnit.toFixed(4)}${displayUnit} 기준값 ${refInDisplayUnit.toFixed(4)}${displayUnit} (참고 상수값 ${tableConstant})</span>
+                    <strong>측정${idx+1}</strong> | <span class="error-text" style="color:${errP>=0?'#007bff':'#d93025'}">${sign}${errP.toFixed(3)}%</span><br>
+                    <span>측정값 ${valInDisplayUnit.toFixed(3)}${displayUnit} 기준값 ${refInDisplayUnit.toFixed(3)}${displayUnit} (참고 상수값 ${tableConstant})</span>
                 </div>`;
         });
 
@@ -190,46 +175,32 @@
         const v = parseFloat(document.getElementById('c-' + type).value);
         if (isNaN(v)) return;
         const kn = v / convFactors[type];
-        for (let u in convFactors) if (u !== type && document.getElementById('c-' + u)) document.getElementById('c-' + u).value = (kn * convFactors[u]).toFixed(4);
+        for (let u in convFactors) if (u !== type && document.getElementById('c-' + u)) document.getElementById('c-' + u).value = (kn * convFactors[u]).toFixed(3);
     }
 
-    // 결과 이미지 생성 및 공유/저장 기능
     async function shareAsImage() {
         const captureArea = document.getElementById('capture-area');
-        
-        // 입력창의 값을 이미지로 그리기 위해 현재 텍스트로 변환하는 작업 (임시)
         const inputs = captureArea.querySelectorAll('input');
         const tempSpans = [];
         inputs.forEach(input => {
             const span = document.createElement('span');
             span.innerText = input.value || '(미입력)';
-            span.style.fontSize = '15px';
-            span.style.fontWeight = 'bold';
+            span.style.cssText = 'font-size:15px; font-weight:bold; color:#333;';
             input.style.display = 'none';
             input.parentNode.appendChild(span);
             tempSpans.push({ input, span });
         });
 
         try {
-            const canvas = await html2canvas(captureArea);
+            const canvas = await html2canvas(captureArea, { backgroundColor: "#ffffff", scale: 2 });
             const dataUrl = canvas.toDataURL("image/png");
-            
-            // 이미지 다운로드 (모바일의 경우 꾹 눌러 저장 유도 가능)
             const link = document.createElement('a');
             link.href = dataUrl;
-            link.download = `Calibration_Result_${new Date().getTime()}.png`;
+            link.download = `Result_${new Date().getTime()}.png`;
             link.click();
-            
-            alert("이미지가 생성되었습니다. 갤러리 확인 후 카카오톡으로 공유하세요!");
-        } catch (err) {
-            alert("이미지 생성 중 오류가 발생했습니다.");
-        } finally {
-            // 원복
-            tempSpans.forEach(({ input, span }) => {
-                input.style.display = 'block';
-                span.remove();
-            });
-        }
+            alert("이미지가 저장되었습니다. 카카오톡으로 공유하세요!");
+        } catch (err) { alert("이미지 생성 중 오류가 발생했습니다."); } 
+        finally { tempSpans.forEach(({ input, span }) => { input.style.display = 'block'; span.remove(); }); }
     }
 </script>
 </body>
