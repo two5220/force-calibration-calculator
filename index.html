@@ -15,7 +15,8 @@
         .section-title { font-weight: bold; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         input, select { width: 100%; height: 44px; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
         .upload-area { border: 2px dashed #007bff; text-align: center; padding: 20px 10px; cursor: pointer; background: #f0f7ff; border-radius: 8px; margin-bottom: 10px; }
-        #status { font-size: 0.8rem; text-align: center; color: #fd7e14; margin-bottom: 10px; font-weight: bold; }
+        #status { font-size: 0.8rem; text-align: center; color: #fd7e14; margin-bottom: 5px; font-weight: bold; }
+        .guide-text { font-size: 0.8rem; color: #007bff; text-align: center; margin-bottom: 15px; font-weight: bold; background-color: #e7f1ff; padding: 8px; border-radius: 5px; }
         .table-wrapper { overflow-x: auto; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; min-width: 280px; }
         th, td { border: 1px solid #dee2e6; padding: 10px 5px; text-align: center; font-size: 0.85rem; }
@@ -39,14 +40,15 @@
 
     <div class="section">
         <div class="section-title">
-            <span>1단계: 기준기 데이터 (인식 강화)</span>
+            <span>1단계: 기준기 데이터 (인식 극대화)</span>
             <button class="btn-reset" onclick="resetTable('cal-table')">초기화</button>
         </div>
         <div class="upload-area" onclick="document.getElementById('image-input').click()">
             <strong>📸 사진 업로드 / 촬영</strong>
             <input type="file" id="image-input" accept="image/*" style="display:none;">
         </div>
-        <div id="status">표의 왼쪽 1, 2열 데이터를 우선 인식합니다.</div>
+        <div id="status">사진에서 숫자 데이터만 정밀하게 추출합니다.</div>
+        <p class="guide-text">※ '증가시 평균 순 지시값'을 기준으로 인식하며, 0 값은 제외됩니다.</p>
         
         <div style="margin-bottom: 10px;">
             <label style="font-size: 0.85rem; font-weight: bold;">하중 단위 선택</label>
@@ -108,12 +110,12 @@
     const calTable = document.getElementById('cal-table');
     const inputRows = document.getElementById('input-rows');
     
-    // 초기 행 생성
-    for(let i=0; i<10; i++) calTable.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val" value="${i}"></td><td><input type="number" class="const-val" value="${i*2000}"></td></tr>`;
+    // 초기 행 생성 (기본값 제거)
+    for(let i=0; i<10; i++) calTable.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val"></td><td><input type="number" class="const-val"></td></tr>`;
     for(let i=0; i<5; i++) inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val"></td><td><input type="number" class="ref-const"></td></tr>`;
 
     function resetTable(id) {
-        if(!confirm("초기화하시겠습니까?")) return;
+        if(!confirm("해당 구역의 입력값을 초기화하시겠습니까?")) return;
         document.querySelectorAll(`#${id} input`).forEach(i => {
             if(!i.classList.contains('row-idx')) i.value = '';
         });
@@ -122,39 +124,55 @@
 
     function resetConverter() { document.querySelectorAll('.converter-container input').forEach(i => i.value = ''); }
 
-    // 고성능 OCR 로직: 화이트리스트 및 행 분석 강화
+    // 🔥 인식률 극대화 로직: 숫자 집중 공략 & 값 크기 기반 분류
     document.getElementById('image-input').addEventListener('change', async (e) => {
         const file = e.target.files[0]; if (!file) return;
-        const status = document.getElementById('status'); status.innerText = "🌀 숫자 집중 분석 중... (정면 사진 권장)";
+        const status = document.getElementById('status'); status.innerText = "🌀 이미지에서 숫자만 추출하고 있습니다...";
         try {
-            const worker = await Tesseract.createWorker('eng'); // 숫자 인식에는 영문 엔진이 더 정확함
-            await worker.setParameters({ tessedit_char_whitelist: '0123456789.' }); // 숫자와 소수점만 허용
+            // 1. 언어 및 화이트리스트 설정: 숫자(0-9)만 인식하도록 강력 제한
+            const worker = await Tesseract.createWorker('eng'); 
+            await worker.setParameters({ tessedit_char_whitelist: '0123456789' });
             
-            const { data } = await worker.recognize(file);
-            const lines = data.lines;
-            const knI = document.querySelectorAll('.kn-val'), csI = document.querySelectorAll('.const-val');
+            const { data: { text } } = await worker.recognize(file);
             
-            let rowIdx = 0;
-            lines.forEach(line => {
-                // 한 줄에서 숫자 덩어리들을 찾음
-                const nums = line.text.match(/\d+(\.\d+)?/g);
-                if (nums && nums.length >= 2 && rowIdx < 10) {
-                    // 왼쪽에서 첫 번째는 하중, 두 번째는 상수로 입력
-                    knI[rowIdx].value = nums[0];
-                    csI[rowIdx].value = nums[1];
-                    rowIdx++;
+            // 2. 정규식으로 숫자 덩어리만 모두 추출
+            const allNumbers = text.match(/\d+/g);
+
+            if (!allNumbers || allNumbers.length === 0) {
+                status.innerText = "❌ 숫자를 찾을 수 없습니다. 사진을 다시 찍어주세요.";
+                await worker.terminate();
+                return;
+            }
+
+            const knInputs = document.querySelectorAll('.kn-val');
+            const constInputs = document.querySelectorAll('.const-val');
+            let knIdx = 0, constIdx = 0;
+
+            // 3. 추출된 숫자를 순회하며 분류 및 입력
+            allNumbers.map(Number).forEach(num => {
+                if (num === 0) return; // '0' 값은 무시
+
+                // 값의 크기로 하중과 상수를 추정하여 분류 (일반적인 교정 성적서 패턴 활용)
+                if (num <= 100 && knIdx < 10) { // 100 이하를 하중으로 간주
+                    knInputs[knIdx++].value = num;
+                } else if (num >= 1000 && constIdx < 10) { // 1000 이상을 상수로 간주
+                    constInputs[constIdx++].value = num;
                 }
             });
-            status.innerText = rowIdx > 0 ? "✅ 왼쪽 1, 2열 인식 성공! 값을 확인하세요." : "❌ 숫자를 찾지 못했습니다. 다시 시도해 주세요.";
+
+            status.innerText = (knIdx > 0 || constIdx > 0) ? "✅ 숫자 추출 및 분류 완료! 값을 확인해 주세요." : "⚠️ 인식된 유효한 데이터가 없습니다.";
             await worker.terminate();
-        } catch(err) { status.innerText = "❌ 인식 오류 발생."; }
+        } catch(err) { 
+            status.innerText = "❌ 인식 과정에서 오류가 발생했습니다."; 
+            console.error(err);
+        }
     });
 
     function calculateAll() {
         const refUnit = document.getElementById('ref-unit-sel').value;
         const knT = Array.from(document.querySelectorAll('.kn-val')).map(i => {
             let val = parseFloat(i.value);
-            return refUnit === 'n' ? val / 1000 : val; // N 선택 시 kN으로 변환하여 계산
+            return refUnit === 'n' ? val / 1000 : val; // N 선택 시 kN으로 변환
         });
         const csT = Array.from(document.querySelectorAll('.const-val')).map(i => parseFloat(i.value));
         const unit = document.getElementById('global-unit-sel').value;
@@ -173,11 +191,17 @@
                 if(d < mD) { mD = d; bI = j; }
             }
 
-            const slope = knT[bI] === 0 ? 0 : csT[bI] / knT[bI];
+            // 하중이 0이거나 비어있을 경우 예외 처리
+            if (!knT[bI] || knT[bI] === 0) {
+                resA.innerHTML += `<div class="result-item" style="border-left-color: #dc3545; background: #fff5f5;"><strong>${idx+1}번</strong> | ⚠️ 기준 하중 데이터가 유효하지 않습니다.</div>`;
+                return;
+            }
+
+            const slope = csT[bI] / knT[bI];
             const convInd = valInKN * slope;
             const errP = ((convInd - ref) / ref) * 100;
 
-            resA.innerHTML += `<div class="result-item"><strong>${idx+1}번</strong> (${knT[bI]}kN 기준) | 오차: <span style="font-weight:bold; color:${errP>=0?'#007bff':'#d93025'}">${errP.toFixed(4)}%</span><br><small>환산치: ${convInd.toFixed(2)}</small></div>`;
+            resA.innerHTML += `<div class="result-item"><strong>${idx+1}번</strong> (${knT[bI]}${refUnit==='n'?'N':'kN'} 기준) | 오차: <span style="font-weight:bold; color:${errP>=0?'#007bff':'#d93025'}">${errP.toFixed(4)}%</span><br><small>환산치: ${convInd.toFixed(2)}</small></div>`;
         });
         window.scrollTo({ top: resA.offsetTop - 20, behavior: 'smooth' });
     }
