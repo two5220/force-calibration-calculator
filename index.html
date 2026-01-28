@@ -11,28 +11,19 @@
         .header-area { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
         h2 { color: #007bff; font-size: 1.3rem; margin: 0; }
         .creator-tag { color: #adb5bd; font-size: 0.8rem; font-weight: bold; margin-top: 5px; display: block; }
-        
         .section { margin-bottom: 20px; padding: 15px; border: 1px solid #e9ecef; border-radius: 10px; background: #fff; }
         .section-title { font-weight: bold; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-        
         input, select { width: 100%; height: 44px; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
         .upload-area { border: 2px dashed #007bff; text-align: center; padding: 25px 10px; cursor: pointer; background: #f0f7ff; border-radius: 8px; margin-bottom: 10px; }
-        
         #status { font-size: 0.8rem; text-align: center; color: #fd7e14; margin-bottom: 5px; font-weight: bold; }
-        .guide-text { font-size: 0.75rem; color: #007bff; background: #e7f1ff; padding: 10px; border-radius: 5px; margin-bottom: 15px; line-height: 1.4; }
-        
         .table-wrapper { overflow-x: auto; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; min-width: 280px; }
         th, td { border: 1px solid #dee2e6; padding: 10px 5px; text-align: center; font-size: 0.85rem; }
         th { background: #f1f3f5; }
-        
         .btn-calc { width: 100%; padding: 16px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 10px; }
         .btn-reset { padding: 6px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
-        
-        .result-item { padding: 12px; margin-bottom: 8px; border-left: 5px solid #28a745; background: #f4faf6; border-radius: 6px; font-size: 0.9rem; }
-        .converter-container { display: flex; flex-direction: column; gap: 8px; }
-        .conv-box { display: flex; align-items: center; gap: 8px; }
-        .conv-box label { min-width: 50px; font-weight: bold; font-size: 0.8rem; color: #666; }
+        .result-item { padding: 15px; margin-bottom: 10px; border-left: 6px solid #28a745; background: #f4faf6; border-radius: 8px; line-height: 1.6; }
+        .error-text { font-weight: bold; font-size: 1.2rem; }
         canvas { display: none; }
     </style>
 </head>
@@ -46,17 +37,14 @@
 
     <div class="section">
         <div class="section-title">
-            <span>1단계: 기준기 데이터 (인식 강화)</span>
+            <span>1단계: 기준기 데이터 (자른 사진 최적화)</span>
             <button class="btn-reset" onclick="resetTable('cal-table')">초기화</button>
         </div>
         <div class="upload-area" onclick="document.getElementById('image-input').click()">
-            <strong>📸 성적서 사진 업로드 / 촬영</strong>
+            <strong>📸 자른 표 사진(2x10) 업로드 / 촬영</strong>
             <input type="file" id="image-input" accept="image/*" style="display:none;">
         </div>
-        <div id="status">표의 왼쪽 2열 숫자만 집중 분석합니다.</div>
-        <div class="guide-text">
-            ※ '증가시 평균 순 지시값'을 기준으로 인식하며, 0 값은 제외됩니다. <b>정면 사진 권장.</b>
-        </div>
+        <div id="status">표 영역만 잘라 올리면 인식률이 가장 높습니다.</div>
         
         <div style="margin-bottom: 10px;">
             <label style="font-size: 0.85rem; font-weight: bold;">기준 하중 단위</label>
@@ -80,7 +68,6 @@
             <button class="btn-reset" onclick="resetTable('input-rows')">초기화</button>
         </div>
         <div style="margin-bottom: 12px;">
-            <label style="font-size: 0.85rem; font-weight: bold;">통합 단위 선택</label>
             <select id="global-unit-sel">
                 <option value="kgf">kgf</option><option value="gf">gf</option>
                 <option value="kn">kN</option><option value="n">N</option>
@@ -97,16 +84,12 @@
     <div id="result-area"></div>
 
     <div class="section" style="border-style: dashed; background: #fafafa;">
-        <div class="section-title">
-            <span>🔄 단위 변환 계산기</span>
-            <button class="btn-reset" style="background:#6c757d" onclick="resetConverter()">초기화</button>
-        </div>
-        <div class="converter-container">
-            <div class="conv-box"><label>kgf</label><input type="number" id="c-kgf" oninput="convertUnits('kgf')"></div>
-            <div class="conv-box"><label>gf</label><input type="number" id="c-gf" oninput="convertUnits('gf')"></div>
-            <div class="conv-box"><label>kN</label><input type="number" id="c-kn" oninput="convertUnits('kn')"></div>
-            <div class="conv-box"><label>N</label><input type="number" id="c-n" oninput="convertUnits('n')"></div>
-            <div class="conv-box"><label>lbf</label><input type="number" id="c-lbf" oninput="convertUnits('lbf')"></div>
+        <div class="section-title"><span>🔄 단위 변환 계산기</span></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div><label style="font-size:0.7rem">kgf</label><input type="number" id="c-kgf" oninput="convertUnits('kgf')"></div>
+            <div><label style="font-size:0.7rem">gf</label><input type="number" id="c-gf" oninput="convertUnits('gf')"></div>
+            <div><label style="font-size:0.7rem">kN</label><input type="number" id="c-kn" oninput="convertUnits('kn')"></div>
+            <div><label style="font-size:0.7rem">N</label><input type="number" id="c-n" oninput="convertUnits('n')"></div>
         </div>
     </div>
 </div>
@@ -119,65 +102,61 @@
     const inputRows = document.getElementById('input-rows');
     
     for(let i=0; i<10; i++) calTable.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val"></td><td><input type="number" class="const-val"></td></tr>`;
-    for(let i=0; i<5; i++) inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val" placeholder="측정값"></td><td><input type="number" class="ref-const" placeholder="상수"></td></tr>`;
+    for(let i=0; i<5; i++) inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val"></td><td><input type="number" class="ref-const"></td></tr>`;
 
-    function resetTable(id) {
-        if(!confirm("초기화하시겠습니까?")) return;
-        document.querySelectorAll(`#${id} input`).forEach(i => i.value = '');
-    }
-    function resetConverter() { document.querySelectorAll('.converter-container input').forEach(i => i.value = ''); }
+    function resetTable(id) { document.querySelectorAll(`#${id} input`).forEach(i => i.value = ''); }
 
-    function preprocess(img) {
-        const canvas = document.getElementById('preprocess-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = img.width; canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        for (let i = 0; i < data.length; i += 4) {
-            const gray = data[i] * 0.3 + data[i+1] * 0.59 + data[i+2] * 0.11;
-            const contrast = gray > 128 ? 255 : 0;
-            data[i] = data[i+1] = data[i+2] = contrast;
-        }
-        ctx.putImageData(imageData, 0, 0);
-        return canvas.toDataURL();
-    }
-
+    // 고성능 크롭 이미지 인식 로직
     document.getElementById('image-input').addEventListener('change', async (e) => {
         const file = e.target.files[0]; if (!file) return;
-        const status = document.getElementById('status'); status.innerText = "🌀 표 구조 분석 및 숫자 추출 중...";
+        const status = document.getElementById('status'); status.innerText = "🌀 데이터 정밀 추출 중...";
 
         const reader = new FileReader();
         reader.onload = async (event) => {
             const img = new Image();
             img.onload = async () => {
-                const processedURL = preprocess(img);
+                const canvas = document.getElementById('preprocess-canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width; canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                // 흑백 대비 최적화
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    const g = data[i]*0.3 + data[i+1]*0.59 + data[i+2]*0.11;
+                    const c = g > 130 ? 255 : 0;
+                    data[i] = data[i+1] = data[i+2] = c;
+                }
+                ctx.putImageData(imageData, 0, 0);
+
                 try {
                     const worker = await Tesseract.createWorker('eng');
                     await worker.setParameters({ tessedit_char_whitelist: '0123456789' });
-                    const { data } = await worker.recognize(processedURL);
-                    const words = data.words.map(w => ({ text: parseInt(w.text), x: w.bbox.x0, y: w.bbox.y0 })).filter(w => !isNaN(w.text) && w.text !== 0);
-
+                    const { data } = await worker.recognize(canvas.toDataURL());
+                    
+                    // 좌표 기반 행/열 정렬 (2x10 격자 최적화)
+                    const words = data.words.map(w => ({ text: parseInt(w.text), x: w.bbox.x0, y: w.bbox.y0 })).filter(w => !isNaN(w.text));
                     let rows = [];
-                    words.forEach(word => {
-                        let row = rows.find(r => Math.abs(r[0].y - word.y) < 25);
-                        if (row) row.push(word); else rows.push([word]);
+                    words.forEach(w => {
+                        let r = rows.find(row => Math.abs(row[0].y - w.y) < 30);
+                        if (r) r.push(w); else rows.push([w]);
                     });
                     rows.forEach(r => r.sort((a, b) => a.x - b.x));
                     rows.sort((a, b) => a[0].y - b[0].y);
 
                     const knI = document.querySelectorAll('.kn-val'), csI = document.querySelectorAll('.const-val');
-                    let fillIdx = 0;
-                    rows.forEach(row => {
-                        if (row.length >= 2 && fillIdx < 10) {
-                            knI[fillIdx].value = row[0].text;
-                            csI[fillIdx].value = row[1].text;
-                            fillIdx++;
+                    let fIdx = 0;
+                    rows.forEach(r => {
+                        if (r.length >= 2 && fIdx < 10) {
+                            knI[fIdx].value = r[0].text;
+                            csI[fIdx].value = r[1].text;
+                            fIdx++;
                         }
                     });
-                    status.innerText = fillIdx > 0 ? "✅ 인식 성공! 데이터를 확인하세요." : "❌ 다시 촬영해 주세요.";
+                    status.innerText = fIdx > 0 ? "✅ 인식 완료!" : "❌ 다시 촬영해 주세요.";
                     await worker.terminate();
-                } catch(err) { status.innerText = "❌ 인식 오류."; }
+                } catch(err) { status.innerText = "❌ 오류 발생."; }
             };
             img.src = event.target.result;
         };
@@ -187,12 +166,11 @@
     function calculateAll() {
         const refUnit = document.getElementById('ref-unit-sel').value;
         const knT = Array.from(document.querySelectorAll('.kn-val')).map(i => {
-            let val = parseFloat(i.value);
-            return refUnit === 'n' ? val / 1000 : val;
+            let v = parseFloat(i.value); return refUnit === 'n' ? v / 1000 : v;
         });
         const csT = Array.from(document.querySelectorAll('.const-val')).map(i => parseFloat(i.value));
-        const resA = document.getElementById('result-area');
         const unit = document.getElementById('global-unit-sel').value;
+        const resA = document.getElementById('result-area');
 
         resA.innerHTML = '<span class="section-title">📊 분석 결과</span>';
         document.querySelectorAll('#input-rows tr').forEach((row, idx) => {
@@ -207,26 +185,25 @@
             }
             if (!knT[bI]) return;
 
-            const tableKN = knT[bI]; // 기준값 (kN)
+            const tableKN = knT[bI];
             const slope = csT[bI] / tableKN;
             const convInd = valInKN * slope;
             const errP = ((convInd - ref) / ref) * 100;
 
-            const color = errP >= 0 ? '#007bff' : '#d93025';
             resA.innerHTML += `
                 <div class="result-item">
-                    <strong>${idx+1}번</strong> | 오차: <span style="font-weight:bold; color:${color}">${errP.toFixed(4)}%</span><br>
-                    <small>측정값 kn: ${valInKN.toFixed(4)} kn 기준값 kn: ${tableKN} kn</small>
+                    <strong>측정 번호 ${idx+1}</strong> | 오차: <span class="error-text" style="color:${errP>=0?'#007bff':'#d93025'}">${errP.toFixed(4)}%</span><br>
+                    <span>측정값 kn: ${valInKN.toFixed(4)} kn 기준값 kn: ${tableKN} kn</span>
                 </div>`;
         });
         window.scrollTo({ top: resA.offsetTop - 20, behavior: 'smooth' });
     }
 
     function convertUnits(type) {
-        const val = parseFloat(document.getElementById('c-' + type).value);
-        if (isNaN(val)) return;
-        const vInKN = val / convFactors[type];
-        for (let u in convFactors) if (u !== type) document.getElementById('c-' + u).value = (vInKN * convFactors[u]).toFixed(4);
+        const v = parseFloat(document.getElementById('c-' + type).value);
+        if (isNaN(v)) return;
+        const kn = v / convFactors[type];
+        for (let u in convFactors) if (u !== type && document.getElementById('c-' + u)) document.getElementById('c-' + u).value = (kn * convFactors[u]).toFixed(4);
     }
 </script>
 </body>
