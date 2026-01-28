@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Force Calibration Calculator</title>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         body { font-family: -apple-system, sans-serif; padding: 10px; background-color: #f8f9fa; color: #333; margin: 0; }
         .container { max-width: 100%; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -14,8 +13,6 @@
         .section { margin-bottom: 20px; padding: 15px; border: 1px solid #e9ecef; border-radius: 10px; background: #fff; }
         .section-title { font-weight: bold; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         input, select { width: 100%; height: 44px; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
-        .upload-area { border: 2px dashed #007bff; text-align: center; padding: 25px 10px; cursor: pointer; background: #f0f7ff; border-radius: 8px; margin-bottom: 10px; }
-        #status { font-size: 0.8rem; text-align: center; color: #fd7e14; margin-bottom: 5px; font-weight: bold; }
         .table-wrapper { overflow-x: auto; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; min-width: 280px; }
         th, td { border: 1px solid #dee2e6; padding: 10px 5px; text-align: center; font-size: 0.85rem; }
@@ -24,7 +21,6 @@
         .btn-reset { padding: 6px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
         .result-item { padding: 15px; margin-bottom: 10px; border-left: 6px solid #28a745; background: #f4faf6; border-radius: 8px; line-height: 1.6; }
         .error-text { font-weight: bold; font-size: 1.2rem; }
-        canvas { display: none; }
     </style>
 </head>
 <body>
@@ -37,14 +33,9 @@
 
     <div class="section">
         <div class="section-title">
-            <span>1단계: 기준기 데이터 (자른 사진 최적화)</span>
+            <span>1단계: 기준기 데이터 설정</span>
             <button class="btn-reset" onclick="resetTable('cal-table')">초기화</button>
         </div>
-        <div class="upload-area" onclick="document.getElementById('image-input').click()">
-            <strong>📸 자른 표 사진(2x10) 업로드 / 촬영</strong>
-            <input type="file" id="image-input" accept="image/*" style="display:none;">
-        </div>
-        <div id="status">표 영역만 잘라 올리면 인식률이 가장 높습니다.</div>
         
         <div style="margin-bottom: 10px;">
             <label style="font-size: 0.85rem; font-weight: bold;">기준 하중 단위</label>
@@ -57,7 +48,8 @@
         <div class="table-wrapper">
             <table>
                 <thead><tr><th width="30">#</th><th>하중</th><th>기준 상수</th></tr></thead>
-                <tbody id="cal-table"></tbody>
+                <tbody id="cal-table">
+                    </tbody>
             </table>
         </div>
     </div>
@@ -68,6 +60,7 @@
             <button class="btn-reset" onclick="resetTable('input-rows')">초기화</button>
         </div>
         <div style="margin-bottom: 12px;">
+            <label style="font-size: 0.85rem; font-weight: bold;">측정 단위 선택</label>
             <select id="global-unit-sel">
                 <option value="kgf">kgf</option><option value="gf">gf</option>
                 <option value="kn">kN</option><option value="n">N</option>
@@ -76,7 +69,8 @@
         </div>
         <table>
             <thead><tr><th width="30">#</th><th>측정값 (Input)</th><th>기준기 상수 (Ref)</th></tr></thead>
-            <tbody id="input-rows"></tbody>
+            <tbody id="input-rows">
+                </tbody>
         </table>
         <button class="btn-calc" onclick="calculateAll()">분석 시작</button>
     </div>
@@ -94,74 +88,16 @@
     </div>
 </div>
 
-<canvas id="preprocess-canvas"></canvas>
-
 <script>
     const convFactors = { kn: 1, n: 1000, kgf: 101.9716, gf: 101971.6, lbf: 224.8089 };
     const calTable = document.getElementById('cal-table');
     const inputRows = document.getElementById('input-rows');
     
-    for(let i=0; i<10; i++) calTable.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val"></td><td><input type="number" class="const-val"></td></tr>`;
-    for(let i=0; i<5; i++) inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val"></td><td><input type="number" class="ref-const"></td></tr>`;
+    // 요청대로 5행씩만 생성
+    for(let i=0; i<5; i++) calTable.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val" placeholder="하중"></td><td><input type="number" class="const-val" placeholder="상수"></td></tr>`;
+    for(let i=0; i<5; i++) inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val" placeholder="측정값"></td><td><input type="number" class="ref-const" placeholder="상수"></td></tr>`;
 
     function resetTable(id) { document.querySelectorAll(`#${id} input`).forEach(i => i.value = ''); }
-
-    // 고성능 크롭 이미지 인식 로직
-    document.getElementById('image-input').addEventListener('change', async (e) => {
-        const file = e.target.files[0]; if (!file) return;
-        const status = document.getElementById('status'); status.innerText = "🌀 데이터 정밀 추출 중...";
-
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const img = new Image();
-            img.onload = async () => {
-                const canvas = document.getElementById('preprocess-canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width; canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                
-                // 흑백 대비 최적화
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imageData.data;
-                for (let i = 0; i < data.length; i += 4) {
-                    const g = data[i]*0.3 + data[i+1]*0.59 + data[i+2]*0.11;
-                    const c = g > 130 ? 255 : 0;
-                    data[i] = data[i+1] = data[i+2] = c;
-                }
-                ctx.putImageData(imageData, 0, 0);
-
-                try {
-                    const worker = await Tesseract.createWorker('eng');
-                    await worker.setParameters({ tessedit_char_whitelist: '0123456789' });
-                    const { data } = await worker.recognize(canvas.toDataURL());
-                    
-                    // 좌표 기반 행/열 정렬 (2x10 격자 최적화)
-                    const words = data.words.map(w => ({ text: parseInt(w.text), x: w.bbox.x0, y: w.bbox.y0 })).filter(w => !isNaN(w.text));
-                    let rows = [];
-                    words.forEach(w => {
-                        let r = rows.find(row => Math.abs(row[0].y - w.y) < 30);
-                        if (r) r.push(w); else rows.push([w]);
-                    });
-                    rows.forEach(r => r.sort((a, b) => a.x - b.x));
-                    rows.sort((a, b) => a[0].y - b[0].y);
-
-                    const knI = document.querySelectorAll('.kn-val'), csI = document.querySelectorAll('.const-val');
-                    let fIdx = 0;
-                    rows.forEach(r => {
-                        if (r.length >= 2 && fIdx < 10) {
-                            knI[fIdx].value = r[0].text;
-                            csI[fIdx].value = r[1].text;
-                            fIdx++;
-                        }
-                    });
-                    status.innerText = fIdx > 0 ? "✅ 인식 완료!" : "❌ 다시 촬영해 주세요.";
-                    await worker.terminate();
-                } catch(err) { status.innerText = "❌ 오류 발생."; }
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
 
     function calculateAll() {
         const refUnit = document.getElementById('ref-unit-sel').value;
@@ -173,27 +109,37 @@
         const resA = document.getElementById('result-area');
 
         resA.innerHTML = '<span class="section-title">📊 분석 결과</span>';
+        
+        // 결과 표시 단위 결정 (gf나 n일 경우 n으로 표시, 그 외엔 kn으로 표시)
+        const displayUnit = (unit === 'gf' || unit === 'n') ? 'n' : 'kn';
+        const factor = displayUnit === 'n' ? convFactors.n : convFactors.kn;
+
         document.querySelectorAll('#input-rows tr').forEach((row, idx) => {
-            const val = parseFloat(row.querySelector('.comp-val').value);
-            const ref = parseFloat(row.querySelector('.ref-const').value);
+            const val = parseFloat(row.querySelector('.comp-val').value); // 입력 측정값
+            const ref = parseFloat(row.querySelector('.ref-const').value); // 입력 기준기 상수(목표)
             if (isNaN(val) || isNaN(ref)) return;
 
-            const valInKN = val / convFactors[unit];
+            // 가장 가까운 기준 상수 찾기
             let bI = 0, mD = Math.abs(csT[0] - ref);
             for(let j=1; j<knT.length; j++) {
+                if (isNaN(csT[j])) continue;
                 let d = Math.abs(csT[j] - ref); if(d < mD) { mD = d; bI = j; }
             }
             if (!knT[bI]) return;
 
-            const tableKN = knT[bI];
-            const slope = csT[bI] / tableKN;
-            const convInd = valInKN * slope;
-            const errP = ((convInd - ref) / ref) * 100;
+            const tableKN = knT[bI]; // 성적서 하중(kN)
+            const tableConstant = csT[bI]; // 성적서 상수
+            const slope = tableConstant / tableKN; // 1kN당 상수 비율
+
+            // 계산 로직
+            const valInDisplayUnit = (val / convFactors[unit]) * factor; // 측정값 환산 (kn or n)
+            const refInDisplayUnit = (ref / slope) * factor; // 입력 상수값 환산 (kn or n)
+            const errP = ((valInDisplayUnit - refInDisplayUnit) / refInDisplayUnit) * 100;
 
             resA.innerHTML += `
                 <div class="result-item">
                     <strong>측정 번호 ${idx+1}</strong> | 오차: <span class="error-text" style="color:${errP>=0?'#007bff':'#d93025'}">${errP.toFixed(4)}%</span><br>
-                    <span>측정값 kn: ${valInKN.toFixed(4)} kn 기준값 kn: ${tableKN} kn</span>
+                    <span>측정값 ${displayUnit}: ${valInDisplayUnit.toFixed(4)} ${displayUnit} | 상수값 ${displayUnit}: ${refInDisplayUnit.toFixed(4)} ${displayUnit} | 기준상수값: ${tableConstant}</span>
                 </div>`;
         });
         window.scrollTo({ top: resA.offsetTop - 20, behavior: 'smooth' });
