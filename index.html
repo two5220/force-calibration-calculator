@@ -11,45 +11,64 @@
         .header-area { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
         h2 { color: #007bff; font-size: 1.25rem; margin: 0; }
         .creator-tag { color: #adb5bd; font-size: 0.8rem; font-weight: bold; margin-top: 5px; display: block; }
+        
         .section { margin-bottom: 15px; padding: 12px; border: 1px solid #e9ecef; border-radius: 10px; background: #fff; }
-        .section-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-        input, select { width: 100%; height: 35px; padding: 5px 8px; border: 1px solid #ced4da; border-radius: 5px; font-size: 15px; box-sizing: border-box; }
+        .section-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+        
+        .btn-group { display: flex; gap: 5px; }
+        input, select { width: 100%; height: 35px; padding: 5px 8px; border: 1px solid #ced4da; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
+        
         .table-wrapper { overflow-x: auto; margin-top: 5px; }
         table { width: 100%; border-collapse: collapse; min-width: 280px; }
-        th, td { border: 1px solid #dee2e6; padding: 6px 4px; text-align: center; font-size: 0.85rem; }
+        th, td { border: 1px solid #dee2e6; padding: 6px 3px; text-align: center; font-size: 0.82rem; }
         th { background: #f1f3f5; }
+        
         .btn-calc { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 10px; }
         .btn-share { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 10px; display: none; }
-        .btn-reset { padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.75rem; }
-        .btn-reset-sub { background: #6c757d; }
+        .btn-reset { padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.72rem; white-space: nowrap; }
+        .btn-toggle { padding: 4px 8px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.72rem; white-space: nowrap; }
+        
         #capture-area { background: white; padding: 10px; border-radius: 8px; }
         .result-item { padding: 12px; margin-bottom: 8px; border-left: 5px solid #28a745; background: #f4faf6; border-radius: 6px; font-size: 0.88rem; line-height: 1.5; }
         .error-text { font-weight: bold; font-size: 1.1rem; }
+        
         .info-section { display: none; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ced4da; }
         .info-group { margin-bottom: 8px; }
         .info-group label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 3px; }
+
         .conv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; }
         .conv-box label { font-size: 0.7rem; display: block; margin-bottom: 2px; color: #666; }
     </style>
 </head>
 <body>
+
 <div class="container">
     <div class="header-area">
         <h2>FORCE CALIBRATION CALCULATOR</h2>
-        <span class="creator-tag">Created by D</span>
+        <span class="creator-tag">현장의 무게를 가볍게, Created by D</span>
     </div>
 
     <div class="section">
-        <div class="section-title"><span>1단계 기준기 데이터 설정</span><button class="btn-reset" onclick="resetTable('cal-table')">초기화</button></div>
+        <div class="section-title">
+            <span>1단계 기준기 데이터 설정</span>
+            <div class="btn-group">
+                <button id="toggle-row-btn" class="btn-toggle" onclick="toggleRows()">10칸</button>
+                <button class="btn-reset" onclick="resetTable('cal-table')">초기화</button>
+            </div>
+        </div>
         <div style="margin-bottom: 10px;">
-            <label style="font-size: 0.8rem; color: #007bff; font-weight: bold;">기준 장비 선택 (DB 로드)</label>
+            <label style="font-size: 0.75rem; color: #007bff; font-weight: bold;">기준 장비 선택 (DB 로드)</label>
             <select id="load-cell-db" onchange="applyLoadCell()">
                 <option value="">-- 장비를 선택하세요 --</option>
             </select>
         </div>
         <div style="margin-bottom: 8px;"><select id="ref-unit-sel"><option value="kn">kN (킬로뉴턴)</option><option value="n">N (뉴턴)</option></select></div>
+        
         <div class="table-wrapper">
-            <table><thead><tr><th width="30">#</th><th>하중</th><th>기준 상수</th></tr></thead><tbody id="cal-table"></tbody></table>
+            <table id="cal-main-table">
+                <thead id="cal-thead"></thead>
+                <tbody id="cal-table"></tbody>
+            </table>
         </div>
     </div>
 
@@ -68,11 +87,10 @@
             <div class="info-group"><label>S/N</label><input type="text" id="serial-number" placeholder="입력하세요"></div>
         </div>
     </div>
-
     <button id="share-btn" class="btn-share" onclick="shareAsImage()">결과 공유 (이미지로 저장)</button>
 
     <div class="section" style="border-style: dashed; background: #fafafa; margin-top: 20px;">
-        <div class="section-title"><span>🔄 단위 변환 계산기</span><button class="btn-reset btn-reset-sub" onclick="resetConverter()">초기화</button></div>
+        <div class="section-title"><span>🔄 단위 변환 계산기</span><button class="btn-reset btn-reset-sub" style="background:#6c757d" onclick="resetConverter()">초기화</button></div>
         <div class="conv-grid">
             <div><label>kgf</label><input type="number" id="c-kgf" oninput="convertUnits('kgf')"></div>
             <div><label>gf</label><input type="number" id="c-gf" oninput="convertUnits('gf')"></div>
@@ -84,12 +102,14 @@
 
 <script>
     const convFactors = { kn: 1, n: 1000, kgf: 101.9716, gf: 101971.6, lbf: 224.8089 };
+    let currentRows = 5; // 기본 5칸
+
     const loadCellDB = [
-        {"name":"BONGSHIN / 500 N","sn":"X12286","a":39.98035,"b":0.0000247,"c":0.000000079,"cap":500,"calcUnit":"n"},
-        {"name":"BONGSHIN / 1 kN","sn":"P18211","a":19.98944,"b":-0.0000091,"c":0.000000016,"cap":1,"calcUnit":"n"},
-        {"name":"BONGSHIN / 2 kN","sn":"O39969","a":10.0023,"b":-0.0000026,"c":0.000000001,"cap":2,"calcUnit":"n"},
-        {"name":"HBM / 2 kN","sn":"352916A","a":10.00164,"b":-0.0000013,"c":0.0000000002,"cap":2,"calcUnit":"n"},
-        {"name":"HBM / 5 kN","sn":"032593A","a":4.002789,"b":0.0000011,"c":-0.0000000002,"cap":5,"calcUnit":"n"},
+        {"name":"BONGSHIN / 500 N","sn":"X12286","a":39.98035,"b":2.474438e-05,"c":7.938702e-08,"cap":500,"calcUnit":"n"},
+        {"name":"BONGSHIN / 1 kN","sn":"P18211","a":19.98944,"b":-9.063061e-06,"c":1.64958e-08,"cap":1,"calcUnit":"n"},
+        {"name":"BONGSHIN / 2 kN","sn":"O39969","a":10.0023,"b":-2.603319e-06,"c":1.189028e-09,"cap":2,"calcUnit":"n"},
+        {"name":"HBM / 2 kN","sn":"352916A","a":10.00164,"b":-1.279602e-06,"c":2.138041e-10,"cap":2,"calcUnit":"n"},
+        {"name":"HBM / 5 kN","sn":"032593A","a":4.002789,"b":1.1138e-06,"c":-1.915273e-10,"cap":5,"calcUnit":"n"},
         {"name":"POINT / 10 kN","sn":"C9T0105","a":1998.678,"b":-0.028778,"c":0.015466,"cap":10,"calcUnit":"kn"},
         {"name":"BONGSHIN / 10 kN","sn":"X50243","a":1997.558,"b":0.21389,"c":0.0083516,"cap":10,"calcUnit":"kn"},
         {"name":"BONGSHIN / 30 kN","sn":"O08300","a":666.7137,"b":-0.005792,"c":0.0002647,"cap":30,"calcUnit":"kn"},
@@ -112,36 +132,66 @@
         {"name":"AND / 5 kN","sn":"C6313766","a":3.998388,"b":4.328e-08,"c":-1.465e-11,"cap":5,"calcUnit":"n"}
     ];
 
-    const dbSelect = document.getElementById('load-cell-db');
-    loadCellDB.forEach((item, idx) => {
-        const opt = document.createElement('option');
-        opt.value = idx;
-        opt.textContent = `${item.name} (${item.sn})`;
-        dbSelect.appendChild(opt);
-    });
+    function init() {
+        const dbSelect = document.getElementById('load-cell-db');
+        loadCellDB.forEach((item, idx) => {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.textContent = `${item.name} (${item.sn})`;
+            dbSelect.appendChild(opt);
+        });
+        renderCalTable();
+        const inputRows = document.getElementById('input-rows');
+        for(let i=0; i<5; i++) {
+            inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val"></td><td><input type="number" class="ref-const"></td></tr>`;
+        }
+    }
 
-    const calTable = document.getElementById('cal-table');
-    const inputRows = document.getElementById('input-rows');
-    for(let i=0; i<5; i++) {
-        calTable.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val"></td><td><input type="number" class="const-val"></td></tr>`;
-        inputRows.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="comp-val"></td><td><input type="number" class="ref-const"></td></tr>`;
+    function toggleRows() {
+        currentRows = (currentRows === 5) ? 10 : 5;
+        document.getElementById('toggle-row-btn').textContent = (currentRows === 5) ? "10칸" : "5칸";
+        renderCalTable();
+        applyLoadCell(); // 토글 시 현재 선택된 로드셀 데이터를 5등분 또는 10등분으로 즉시 갱신
+    }
+
+    function renderCalTable() {
+        const thead = document.getElementById('cal-thead');
+        const tbody = document.getElementById('cal-table');
+        tbody.innerHTML = '';
+        
+        if (currentRows === 5) {
+            thead.innerHTML = `<tr><th width="30">#</th><th>하중</th><th>기준 상수</th></tr>`;
+            for(let i=0; i<5; i++) {
+                tbody.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val"></td><td><input type="number" class="const-val"></td></tr>`;
+            }
+        } else {
+            // 10칸일 때 가로 2열 배치 (세로 추가 방지)
+            thead.innerHTML = `<tr><th width="25">#</th><th>하중</th><th>상수</th><th width="25">#</th><th>하중</th><th>상수</th></tr>`;
+            for(let i=0; i<5; i++) {
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="background:#f9f9f9">${i+1}</td><td><input type="number" class="kn-val"></td><td><input type="number" class="const-val"></td>
+                        <td style="background:#f9f9f9">${i+6}</td><td><input type="number" class="kn-val"></td><td><input type="number" class="const-val"></td>
+                    </tr>`;
+            }
+        }
     }
 
     function applyLoadCell() {
-        const selectedIdx = dbSelect.value;
+        const selectedIdx = document.getElementById('load-cell-db').value;
         if(selectedIdx === "") return;
         const item = loadCellDB[selectedIdx];
         document.getElementById('ref-unit-sel').value = (item.calcUnit === 'n') ? 'n' : 'kn';
         const knInputs = document.querySelectorAll('.kn-val');
         const constInputs = document.querySelectorAll('.const-val');
-        for(let i=1; i<=5; i++) {
-            const load_kn = (item.cap / 5) * i;
-            const X = (item.calcUnit === 'n') ? (item.cap === 500 ? (500/5*i) : load_kn * 1000) : load_kn;
+        
+        for(let i=1; i<=currentRows; i++) {
+            const load_kn = (item.cap / currentRows) * i;
+            const X = (item.calcUnit === 'n') ? (item.cap === 500 ? (500/currentRows*i) : load_kn * 1000) : load_kn;
             const constant = (item.a * X) + (item.b * Math.pow(X, 2)) + (item.c * Math.pow(X, 3));
-            knInputs[i-1].value = (item.calcUnit === 'n' && item.cap !== 500) ? (load_kn * 1000).toFixed(0) : load_kn;
+            knInputs[i-1].value = (item.calcUnit === 'n' && item.cap !== 500) ? (load_kn * 1000).toFixed(0) : load_kn.toFixed(currentRows === 10 ? 1 : 0);
             constInputs[i-1].value = Math.round(constant);
         }
-        // 요청에 따라 피교정기 정보 자동 기입 로직 삭제
     }
 
     function resetTable(id) { document.querySelectorAll(`#${id} input`).forEach(i => i.value = ''); }
@@ -150,26 +200,36 @@
     function calculateAll() {
         const refUnit = document.getElementById('ref-unit-sel').value;
         const knT = Array.from(document.querySelectorAll('.kn-val')).map(i => {
-            let v = parseFloat(i.value); return refUnit === 'n' ? v / 1000 : v;
+            let v = parseFloat(i.value); return (v && refUnit === 'n') ? v / 1000 : v;
         });
         const csT = Array.from(document.querySelectorAll('.const-val')).map(i => parseFloat(i.value));
         const unit = document.getElementById('global-unit-sel').value;
         const resA = document.getElementById('result-area');
+        const convFactors = { kn: 1, n: 1000, kgf: 101.9716, gf: 101971.6, lbf: 224.8089 };
+
         resA.innerHTML = '<span class="section-title" style="margin-top:10px;">결과</span>';
         const displayUnit = (unit === 'gf' || unit === 'n') ? 'N' : 'kN';
         const factor = displayUnit === 'N' ? 1000 : 1;
         let hasResult = false;
+
         document.querySelectorAll('#input-rows tr').forEach((row, idx) => {
             const val = parseFloat(row.querySelector('.comp-val').value);
             const ref = parseFloat(row.querySelector('.ref-const').value);
             if (isNaN(val) || isNaN(ref)) return;
-            let bI = 0, mD = Math.abs(csT[0] - ref);
-            for(let j=1; j<knT.length; j++) { if(Math.abs(csT[j] - ref) < mD) { mD = Math.abs(csT[j] - ref); bI = j; } }
+
+            let bI = -1, mD = Infinity;
+            for(let j=0; j<currentRows; j++) {
+                if (isNaN(csT[j])) continue;
+                let d = Math.abs(csT[j] - ref); if(d < mD) { mD = d; bI = j; }
+            }
+            if (bI === -1 || !knT[bI]) return;
+
             const slope = csT[bI] / knT[bI];
             const valInDisplayUnit = (val / convFactors[unit]) * factor;
             const refInDisplayUnit = (ref / slope) * factor;
             const errP = ((valInDisplayUnit - refInDisplayUnit) / refInDisplayUnit) * 100;
             hasResult = true;
+
             resA.innerHTML += `<div class="result-item"><strong>측정${idx+1}</strong> | <span class="error-text" style="color:${errP>=0?'#007bff':'#d93025'}">${errP>=0?'+':''}${errP.toFixed(3)}%</span><br><span>측정값 ${valInDisplayUnit.toFixed(3)}${displayUnit} 기준값 ${refInDisplayUnit.toFixed(3)}${displayUnit} (참고 상수값 ${csT[bI]})</span></div>`;
         });
         if(hasResult) { document.getElementById('info-section').style.display = 'block'; document.getElementById('share-btn').style.display = 'block'; }
@@ -201,6 +261,8 @@
         link.click();
         tempSpans.forEach(t => { t.input.style.display = 'block'; t.span.remove(); });
     }
+
+    window.onload = init;
 </script>
 </body>
 </html>
