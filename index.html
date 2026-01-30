@@ -34,11 +34,10 @@
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="header-area">
         <h2>FORCE CALIBRATION CALCULATOR</h2>
-        <span class="creator-tag">현장의 무게를 가볍게, Created by D</span>
+        <span class="creator-tag">Created by D</span>
     </div>
 
     <div class="section">
@@ -55,12 +54,8 @@
             </select>
         </div>
         <div style="margin-bottom: 8px;"><select id="ref-unit-sel"><option value="kn">kN (킬로뉴턴)</option><option value="n">N (뉴턴)</option></select></div>
-        
         <div class="table-wrapper">
-            <table id="cal-main-table">
-                <thead id="cal-thead"></thead>
-                <tbody id="cal-table"></tbody>
-            </table>
+            <table id="cal-main-table"><thead id="cal-thead"></thead><tbody id="cal-table"></tbody></table>
         </div>
     </div>
 
@@ -82,7 +77,7 @@
     <button id="share-btn" class="btn-share" onclick="shareAsImage()">결과 공유 (이미지로 저장)</button>
 
     <div class="section" style="border-style: dashed; background: #fafafa; margin-top: 20px;">
-        <div class="section-title"><span>🔄 단위 변환 계산기</span><button class="btn-reset" style="background:#6c757d" onclick="resetConverter()">초기화</button></div>
+        <div class="section-title"><span>🔄 단위 변환 계산기</span><button class="btn-reset btn-reset-sub" style="background:#6c757d" onclick="resetConverter()">초기화</button></div>
         <div class="conv-grid">
             <div><label>kgf</label><input type="number" id="c-kgf" oninput="convertUnits('kgf')"></div>
             <div><label>gf</label><input type="number" id="c-gf" oninput="convertUnits('gf')"></div>
@@ -108,17 +103,17 @@
         {"name":"BONGSHIN / 30 kN","sn":"R25323","a":666.6861,"b":-0.010685,"c":0.0003837,"cap":30,"calcUnit":"kn"},
         {"name":"BONGSHIN / 30 kN","sn":"W27372","a":665.2203,"b":0.072874,"c":-0.0008043,"cap":30,"calcUnit":"kn"},
         {"name":"BONGSHIN / 50 kN","sn":"V44443","a":398.4546,"b":0.041154,"c":-0.0001985,"cap":50,"calcUnit":"kn"},
-        {"name":"BONGSHIN / 100 kN","sn":"R23681","a":200.9349,"b":-0.008265,"c":-0.0000037,"cap":100,"calcUnit":"kn"},
-        {"name":"POINT / 100 kN","sn":"KT1031","a":200.6634,"b":-0.005519,"c":-0.0000108,"cap":100,"calcUnit":"kn"},
-        {"name":"KOLAS / 100 kN","sn":"E2T1012","a":198.3617,"b":0.024976,"c":-0.0000782,"cap":100,"calcUnit":"kn"},
-        {"name":"BONGSHIN / 300 kN","sn":"R34358","a":67.01353,"b":-0.00119,"c":0.00000015,"cap":300,"calcUnit":"kn"},
-        {"name":"POINT / 300 kN","sn":"P20141","a":66.90203,"b":-0.000948,"c":0.00000052,"cap":300,"calcUnit":"kn"},
-        {"name":"POINT / 500 kN","sn":"KT5062","a":40.08622,"b":-0.000058,"c":-0.00000017,"cap":500,"calcUnit":"kn"},
-        {"name":"POINT / 500 kN","sn":"PT50116","a":39.9433,"b":0.000108,"c":0.00000003,"cap":500,"calcUnit":"kn"},
-        {"name":"BONGSHIN / 500 kN","sn":"R34368","a":40.25535,"b":-0.000471,"c":0.000000027,"cap":500,"calcUnit":"kn"},
-        {"name":"POINT / 1 000 kN","sn":"P20143","a":20.05506,"b":-0.000059,"c":-1.4096e-10,"cap":1000,"calcUnit":"kn"},
-        {"name":"POINT / 2 000 kN","sn":"KT20275","a":10.0291,"b":-0.0000072,"c":-3.236e-09,"cap":2000,"calcUnit":"kn"},
-        {"name":"POINT / 5 000 kN","sn":"PT5016","a":4.01864,"b":-2.989e-06,"c":-2.757e-11,"cap":5000,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 100 kN","sn":"R23681","a":200.9349,"b":-0.008265,"c":-3.695338e-06,"cap":100,"calcUnit":"kn"},
+        {"name":"POINT / 100 kN","sn":"KT1031","a":200.6634,"b":-0.005519,"c":-1.079894e-05,"cap":100,"calcUnit":"kn"},
+        {"name":"KOLAS / 100 kN","sn":"E2T1012","a":198.3617,"b":0.024976,"c":-7.817969e-05,"cap":100,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 300 kN","sn":"R34358","a":67.01353,"b":-0.00119,"c":1.542032e-07,"cap":300,"calcUnit":"kn"},
+        {"name":"POINT / 300 kN","sn":"P20141","a":66.90203,"b":-0.000948,"c":5.236033e-07,"cap":300,"calcUnit":"kn"},
+        {"name":"POINT / 500 kN","sn":"KT5062","a":40.08622,"b":-5.878e-05,"c":-1.771e-07,"cap":500,"calcUnit":"kn"},
+        {"name":"POINT / 500 kN","sn":"PT50116","a":39.9433,"b":0.000108,"c":3.235e-08,"cap":500,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 500 kN","sn":"R34368","a":40.25535,"b":-0.000471,"c":2.727e-08,"cap":500,"calcUnit":"kn"},
+        {"name":"POINT / 1 000 kN","sn":"P20143","a":20.05506,"b":-5.919e-05,"c":-1.41e-10,"cap":1000,"calcUnit":"kn"},
+        {"name":"POINT / 2 000 kN","sn":"KT20275","a":10.0291,"b":-7.23e-06,"c":-3.236e-09,"cap":2000,"calcUnit":"kn"},
+        {"name":"POINT / 5 000 kN","sn":"PT5016","a":4.01864,"b":-2.99e-06,"c":-2.757e-11,"cap":5000,"calcUnit":"kn"},
         {"name":"WONBANG / 10 MN","sn":"WB-2411","a":2.0126,"b":-1.731e-06,"c":5.555e-11,"cap":10000,"calcUnit":"kn"},
         {"name":"WONBANG / 10 MN","sn":"WB-121001","a":2.009767,"b":-1.137e-06,"c":1.178e-11,"cap":10000,"calcUnit":"kn"},
         {"name":"AND / 5 kN","sn":"C6313766","a":3.998388,"b":4.328e-08,"c":-1.465e-11,"cap":5,"calcUnit":"n"}
@@ -150,21 +145,15 @@
         const thead = document.getElementById('cal-thead');
         const tbody = document.getElementById('cal-table');
         tbody.innerHTML = '';
-        
         if (currentRows === 5) {
             thead.innerHTML = `<tr><th width="30">#</th><th>하중</th><th>기준 상수</th></tr>`;
             for(let i=0; i<5; i++) {
                 tbody.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val" data-idx="${i}"></td><td><input type="number" class="const-val" data-idx="${i}"></td></tr>`;
             }
         } else {
-            // 10칸일 때 수직 분할 오름차순 배치 (1-5열 | 6-10열)
             thead.innerHTML = `<tr><th width="25">#</th><th>하중</th><th>상수</th><th width="25">#</th><th>하중</th><th>상수</th></tr>`;
             for(let i=0; i<5; i++) {
-                tbody.innerHTML += `
-                    <tr>
-                        <td style="background:#f9f9f9">${i+1}</td><td><input type="number" class="kn-val" data-idx="${i}"></td><td><input type="number" class="const-val" data-idx="${i}"></td>
-                        <td style="background:#f9f9f9">${i+6}</td><td><input type="number" class="kn-val" data-idx="${i+5}"></td><td><input type="number" class="const-val" data-idx="${i+5}"></td>
-                    </tr>`;
+                tbody.innerHTML += `<tr><td style="background:#f9f9f9">${i+1}</td><td><input type="number" class="kn-val" data-idx="${i}"></td><td><input type="number" class="const-val" data-idx="${i}"></td><td style="background:#f9f9f9">${i+6}</td><td><input type="number" class="kn-val" data-idx="${i+5}"></td><td><input type="number" class="const-val" data-idx="${i+5}"></td></tr>`;
             }
         }
     }
@@ -174,16 +163,14 @@
         if(selectedIdx === "") return;
         const item = loadCellDB[selectedIdx];
         document.getElementById('ref-unit-sel').value = (item.calcUnit === 'n') ? 'n' : 'kn';
-        
         for(let i=1; i<=currentRows; i++) {
             const load_kn = (item.cap / currentRows) * i;
             const X = (item.calcUnit === 'n') ? (item.cap === 500 ? (500/currentRows*i) : load_kn * 1000) : load_kn;
             const constant = (item.a * X) + (item.b * Math.pow(X, 2)) + (item.c * Math.pow(X, 3));
-            
             const knInput = document.querySelector(`.kn-val[data-idx="${i-1}"]`);
             const constInput = document.querySelector(`.const-val[data-idx="${i-1}"]`);
             if(knInput && constInput) {
-                knInput.value = (item.calcUnit === 'n' && item.cap !== 500) ? (load_kn * 1000).toFixed(0) : load_kn.toFixed(currentRows === 10 ? 1 : 0);
+                knInput.value = (item.calcUnit === 'n' && item.cap !== 500) ? (load_kn * 1000).toFixed(0) : load_kn.toFixed(0);
                 constInput.value = Math.round(constant);
             }
         }
@@ -201,30 +188,25 @@
         const unit = document.getElementById('global-unit-sel').value;
         const resA = document.getElementById('result-area');
         const convFactors = { kn: 1, n: 1000, kgf: 101.9716, gf: 101971.6, lbf: 224.8089 };
-
         resA.innerHTML = '<span class="section-title" style="margin-top:10px;">결과</span>';
         const displayUnit = (unit === 'gf' || unit === 'n') ? 'N' : 'kN';
         const factor = displayUnit === 'N' ? 1000 : 1;
         let hasResult = false;
-
         document.querySelectorAll('#input-rows tr').forEach((row, idx) => {
             const val = parseFloat(row.querySelector('.comp-val').value);
             const ref = parseFloat(row.querySelector('.ref-const').value);
             if (isNaN(val) || isNaN(ref)) return;
-
             let bI = -1, mD = Infinity;
             for(let j=0; j<currentRows; j++) {
                 if (isNaN(csT[j])) continue;
                 let d = Math.abs(csT[j] - ref); if(d < mD) { mD = d; bI = j; }
             }
             if (bI === -1 || !knT[bI]) return;
-
             const slope = csT[bI] / knT[bI];
             const valInDisplayUnit = (val / convFactors[unit]) * factor;
             const refInDisplayUnit = (ref / slope) * factor;
             const errP = ((valInDisplayUnit - refInDisplayUnit) / refInDisplayUnit) * 100;
             hasResult = true;
-
             resA.innerHTML += `<div class="result-item"><strong>측정${idx+1}</strong> | <span class="error-text" style="color:${errP>=0?'#007bff':'#d93025'}">${errP>=0?'+':''}${errP.toFixed(3)}%</span><br><span>측정값 ${valInDisplayUnit.toFixed(3)}${displayUnit} 기준값 ${refInDisplayUnit.toFixed(3)}${displayUnit} (참고 상수값 ${csT[bI]})</span></div>`;
         });
         if(hasResult) { document.getElementById('info-section').style.display = 'block'; document.getElementById('share-btn').style.display = 'block'; }
@@ -256,7 +238,6 @@
         link.click();
         tempSpans.forEach(t => { t.input.style.display = 'block'; t.span.remove(); });
     }
-
     window.onload = init;
 </script>
 </body>
