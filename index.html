@@ -11,25 +11,36 @@
         .header-area { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
         h2 { color: #007bff; font-size: 1.25rem; margin: 0; }
         .creator-tag { color: #adb5bd; font-size: 0.8rem; font-weight: bold; margin-top: 5px; display: block; }
+        
         .section { margin-bottom: 15px; padding: 12px; border: 1px solid #e9ecef; border-radius: 10px; background: #fff; }
         .section-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-        input, select { width: 100%; height: 35px; padding: 5px 8px; border: 1px solid #ced4da; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
+        
+        input, select { width: 100%; height: 35px; padding: 5px 8px; border: 1px solid #ced4da; border-radius: 5px; font-size: 15px; box-sizing: border-box; }
+        
         .table-wrapper { overflow-x: auto; margin-top: 5px; }
         table { width: 100%; border-collapse: collapse; min-width: 280px; }
         th, td { border: 1px solid #dee2e6; padding: 6px 4px; text-align: center; font-size: 0.85rem; }
         th { background: #f1f3f5; }
+        
         .btn-calc { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 10px; }
         .btn-share { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 10px; display: none; }
         .btn-reset { padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.75rem; }
+        .btn-reset-sub { background: #6c757d; }
+        
         #capture-area { background: white; padding: 10px; border-radius: 8px; }
         .result-item { padding: 12px; margin-bottom: 8px; border-left: 5px solid #28a745; background: #f4faf6; border-radius: 6px; font-size: 0.88rem; line-height: 1.5; }
         .error-text { font-weight: bold; font-size: 1.1rem; }
+        
         .info-section { display: none; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ced4da; }
         .info-group { margin-bottom: 8px; }
         .info-group label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 3px; }
+
+        .conv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; }
+        .conv-box label { font-size: 0.7rem; display: block; margin-bottom: 2px; color: #666; }
     </style>
 </head>
 <body>
+
 <div class="container">
     <div class="header-area">
         <h2>FORCE CALIBRATION CALCULATOR</h2>
@@ -44,49 +55,48 @@
                 <option value="">-- 장비를 선택하세요 --</option>
             </select>
         </div>
-        <div style="margin-bottom: 8px;">
-            <select id="ref-unit-sel">
-                <option value="kn">kN (킬로뉴턴)</option>
-                <option value="n">N (뉴턴)</option>
-            </select>
-        </div>
+        <div style="margin-bottom: 8px;"><select id="ref-unit-sel"><option value="kn">kN (킬로뉴턴)</option><option value="n">N (뉴턴)</option></select></div>
         <div class="table-wrapper">
-            <table>
-                <thead><tr><th width="30">#</th><th>하중</th><th>기준 상수</th></tr></thead>
-                <tbody id="cal-table"></tbody>
-            </table>
+            <table><thead><tr><th width="30">#</th><th>하중</th><th>기준 상수</th></tr></thead><tbody id="cal-table"></tbody></table>
         </div>
     </div>
 
     <div class="section">
         <div class="section-title"><span>2단계 측정값 입력</span><button class="btn-reset" onclick="resetTable('input-rows')">초기화</button></div>
-        <div style="margin-bottom: 10px;">
-            <select id="global-unit-sel">
-                <option value="kgf">kgf</option><option value="gf">gf</option>
-                <option value="kn">kN</option><option value="n">N</option>
-                <option value="lbf">lbf (ibf)</option>
-            </select>
-        </div>
-        <table>
-            <thead><tr><th width="30">#</th><th>측정값 (Input)</th><th>기준기 상수 (Ref)</th></tr></thead>
-            <tbody id="input-rows"></tbody>
-        </table>
+        <div style="margin-bottom: 10px;"><select id="global-unit-sel"><option value="kgf">kgf</option><option value="gf">gf</option><option value="kn">kN</option><option value="n">N</option><option value="lbf">lbf (ibf)</option></select></div>
+        <table><thead><tr><th width="30">#</th><th>측정값 (Input)</th><th>기준기 상수 (Ref)</th></tr></thead><tbody id="input-rows"></tbody></table>
         <button class="btn-calc" onclick="calculateAll()">계산</button>
     </div>
 
     <div id="capture-area">
         <div id="result-area"></div>
         <div id="info-section" class="info-section">
-            <div class="info-group"><label>업체명</label><input type="text" id="company-name"></div>
-            <div class="info-group"><label>제조사</label><input type="text" id="manufacturer"></div>
-            <div class="info-group"><label>S/N</label><input type="text" id="serial-number"></div>
+            <div class="info-group"><label>업체명</label><input type="text" id="company-name" placeholder="입력하세요"></div>
+            <div class="info-group"><label>제조사</label><input type="text" id="manufacturer" placeholder="입력하세요"></div>
+            <div class="info-group"><label>S/N</label><input type="text" id="serial-number" placeholder="입력하세요"></div>
         </div>
     </div>
+
     <button id="share-btn" class="btn-share" onclick="shareAsImage()">결과 공유 (이미지로 저장)</button>
+
+    <div class="section" style="border-style: dashed; background: #fafafa; margin-top: 20px;">
+        <div class="section-title">
+            <span>🔄 단위 변환 계산기</span>
+            <button class="btn-reset btn-reset-sub" onclick="resetConverter()">초기화</button>
+        </div>
+        <div class="conv-grid">
+            <div><label>kgf</label><input type="number" id="c-kgf" oninput="convertUnits('kgf')"></div>
+            <div><label>gf</label><input type="number" id="c-gf" oninput="convertUnits('gf')"></div>
+            <div><label>kN</label><input type="number" id="c-kn" oninput="convertUnits('kn')"></div>
+            <div><label>N</label><input type="number" id="c-n" oninput="convertUnits('n')"></div>
+        </div>
+    </div>
 </div>
 
 <script>
-    // 성적서 데이터베이스
+    const convFactors = { kn: 1, n: 1000, kgf: 101.9716, gf: 101971.6, lbf: 224.8089 };
+    
+    // DB 데이터
     const loadCellDB = [
         {"name":"BONGSHIN / 500 N","sn":"X12286","a":39.98035,"b":2.474438e-05,"c":7.938702e-08,"cap":500,"calcUnit":"n"},
         {"name":"BONGSHIN / 1 kN","sn":"P18211","a":19.98944,"b":-9.063061e-06,"c":1.64958e-08,"cap":1,"calcUnit":"n"},
@@ -134,19 +144,14 @@
         const selectedIdx = dbSelect.value;
         if(selectedIdx === "") return;
         const item = loadCellDB[selectedIdx];
-        
-        // 하중 단위 설정 (N/kN)
         document.getElementById('ref-unit-sel').value = (item.calcUnit === 'n') ? 'n' : 'kn';
         const knInputs = document.querySelectorAll('.kn-val');
         const constInputs = document.querySelectorAll('.const-val');
-        
         for(let i=1; i<=5; i++) {
             const load_kn = (item.cap / 5) * i;
-            // 성적서 지시사항에 따라 N 단위가 필요한 경우 변환
             const X = (item.calcUnit === 'n') ? (item.cap === 500 ? (500/5*i) : load_kn * 1000) : load_kn;
             const constant = (item.a * X) + (item.b * Math.pow(X, 2)) + (item.c * Math.pow(X, 3));
-            
-            knInputs[i-1].value = (item.calcUnit === 'n' && item.cap !== 500) ? load_kn * 1000 : load_kn;
+            knInputs[i-1].value = (item.calcUnit === 'n' && item.cap !== 500) ? (load_kn * 1000).toFixed(0) : load_kn;
             constInputs[i-1].value = Math.round(constant);
         }
         document.getElementById('manufacturer').value = item.name.split('/')[0].trim();
@@ -154,6 +159,7 @@
     }
 
     function resetTable(id) { document.querySelectorAll(`#${id} input`).forEach(i => i.value = ''); }
+    function resetConverter() { document.querySelectorAll('.conv-grid input').forEach(i => i.value = ''); }
 
     function calculateAll() {
         const refUnit = document.getElementById('ref-unit-sel').value;
@@ -163,32 +169,31 @@
         const csT = Array.from(document.querySelectorAll('.const-val')).map(i => parseFloat(i.value));
         const unit = document.getElementById('global-unit-sel').value;
         const resA = document.getElementById('result-area');
-        const convFactors = { kn: 1, n: 1000, kgf: 101.9716, gf: 101971.6, lbf: 224.8089 };
-
         resA.innerHTML = '<span class="section-title" style="margin-top:10px;">결과</span>';
         const displayUnit = (unit === 'gf' || unit === 'n') ? 'N' : 'kN';
         const factor = displayUnit === 'N' ? 1000 : 1;
-
         let hasResult = false;
         document.querySelectorAll('#input-rows tr').forEach((row, idx) => {
             const val = parseFloat(row.querySelector('.comp-val').value);
             const ref = parseFloat(row.querySelector('.ref-const').value);
             if (isNaN(val) || isNaN(ref)) return;
-
             let bI = 0, mD = Math.abs(csT[0] - ref);
             for(let j=1; j<knT.length; j++) { if(Math.abs(csT[j] - ref) < mD) { mD = Math.abs(csT[j] - ref); bI = j; } }
-            
-            const tableKN = knT[bI];
-            const tableConstant = csT[bI];
-            const slope = tableConstant / tableKN;
+            const slope = csT[bI] / knT[bI];
             const valInDisplayUnit = (val / convFactors[unit]) * factor;
             const refInDisplayUnit = (ref / slope) * factor;
             const errP = ((valInDisplayUnit - refInDisplayUnit) / refInDisplayUnit) * 100;
             hasResult = true;
-
-            resA.innerHTML += `<div class="result-item"><strong>측정${idx+1}</strong> | <span class="error-text" style="color:${errP>=0?'#007bff':'#d93025'}">${errP>=0?'+':''}${errP.toFixed(3)}%</span><br><span>측정값 ${valInDisplayUnit.toFixed(3)}${displayUnit} 기준값 ${refInDisplayUnit.toFixed(3)}${displayUnit} (참고 상수값 ${tableConstant})</span></div>`;
+            resA.innerHTML += `<div class="result-item"><strong>측정${idx+1}</strong> | <span class="error-text" style="color:${errP>=0?'#007bff':'#d93025'}">${errP>=0?'+':''}${errP.toFixed(3)}%</span><br><span>측정값 ${valInDisplayUnit.toFixed(3)}${displayUnit} 기준값 ${refInDisplayUnit.toFixed(3)}${displayUnit} (참고 상수값 ${csT[bI]})</span></div>`;
         });
         if(hasResult) { document.getElementById('info-section').style.display = 'block'; document.getElementById('share-btn').style.display = 'block'; }
+    }
+
+    function convertUnits(type) {
+        const v = parseFloat(document.getElementById('c-' + type).value);
+        if (isNaN(v)) return;
+        const kn = v / convFactors[type];
+        for (let u in convFactors) if (u !== type && document.getElementById('c-' + u)) document.getElementById('c-' + u).value = (kn * convFactors[u]).toFixed(3);
     }
 
     async function shareAsImage() {
@@ -198,12 +203,12 @@
         inputs.forEach(input => {
             const span = document.createElement('span');
             span.innerText = input.value || '(미입력)';
-            span.style.cssText = 'font-size:14px; font-weight:bold;';
+            span.style.cssText = 'font-size:14px; font-weight:bold; color:#333;';
             input.style.display = 'none';
             input.parentNode.appendChild(span);
             tempSpans.push({ input, span });
         });
-        const canvas = await html2canvas(captureArea, { scale: 2 });
+        const canvas = await html2canvas(captureArea, { backgroundColor: "#ffffff", scale: 2 });
         const link = document.createElement('a');
         link.href = canvas.toDataURL();
         link.download = `Result_${new Date().getTime()}.png`;
