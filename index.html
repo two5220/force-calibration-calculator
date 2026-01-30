@@ -38,14 +38,12 @@
 
     <div class="section">
         <div class="section-title"><span>1단계 기준기 데이터 설정</span><button class="btn-reset" onclick="resetTable('cal-table')">초기화</button></div>
-        
         <div style="margin-bottom: 10px;">
             <label style="font-size: 0.8rem; color: #007bff; font-weight: bold;">기준 장비 선택 (DB 로드)</label>
             <select id="load-cell-db" onchange="applyLoadCell()">
                 <option value="">-- 장비를 선택하세요 --</option>
-                </select>
+            </select>
         </div>
-
         <div style="margin-bottom: 8px;">
             <select id="ref-unit-sel">
                 <option value="kn">kN (킬로뉴턴)</option>
@@ -84,43 +82,37 @@
             <div class="info-group"><label>S/N</label><input type="text" id="serial-number"></div>
         </div>
     </div>
-
     <button id="share-btn" class="btn-share" onclick="shareAsImage()">결과 공유 (이미지로 저장)</button>
 </div>
 
 <script>
-    // CSV에서 추출한 기준기 데이터베이스
+    // 성적서 데이터베이스
     const loadCellDB = [
-        {"name":"BONGSHIN / 500 N","sn":"X12286","a":39.98035,"b":0.0000247,"c":0.000000079,"cap":500,"unit":"n"},
-        {"name":"BONGSHIN / 1 kN","sn":"P18211","a":19.98944,"b":-0.0000091,"c":0.000000016,"cap":1,"unit":"kn"},
-        {"name":"BONGSHIN / 2 kN","sn":"O39969","a":10.0023,"b":-0.0000026,"c":0.000000001,"cap":2,"unit":"kn"},
-        {"name":"HBM / 2 kN","sn":"352916A","a":10.00164,"b":-0.0000013,"c":0.0000000002,"cap":2,"unit":"kn"},
-        {"name":"HBM / 5 kN","sn":"032593A","a":4.002789,"b":0.0000011,"c":-0.0000000002,"cap":5,"unit":"kn"},
-        {"name":"POINT / 10 kN","sn":"C9T0105","a":1998.678,"b":-0.028778,"c":0.015466,"cap":10,"unit":"kn"},
-        {"name":"BONGSHIN / 10 kN","sn":"X50243","a":1997.558,"b":0.21389,"c":0.0083516,"cap":10,"unit":"kn"},
-        {"name":"BONGSHIN / 30 kN","sn":"O08300","a":666.7137,"b":-0.005792,"c":0.0002647,"cap":30,"unit":"kn"},
-        {"name":"BONGSHIN / 30 kN","sn":"R25323","a":666.6861,"b":-0.010685,"c":0.0003837,"cap":30,"unit":"kn"},
-        {"name":"BONGSHIN / 30 kN","sn":"W27372","a":665.2203,"b":0.072874,"c":-0.0008043,"cap":30,"unit":"kn"},
-        {"name":"BONGSHIN / 50 kN","sn":"V44443","a":398.4546,"b":0.041154,"c":-0.0001985,"cap":50,"unit":"kn"},
-        {"name":"BONGSHIN / 100 kN","sn":"R23681","a":200.9349,"b":-0.008265,"c":-0.0000037,"cap":100,"unit":"kn"},
-        {"name":"POINT / 100 kN","sn":"KT1031","a":200.6634,"b":-0.005519,"c":-0.0000108,"cap":100,"unit":"kn"},
-        {"name":"KOLAS / 100 kN","sn":"E2T1012","a":198.3617,"b":0.024976,"c":-0.0000782,"cap":100,"unit":"kn"},
-        {"name":"BONGSHIN / 300 kN","sn":"R34358","a":67.01353,"b":-0.00119,"c":0.00000015,"cap":300,"unit":"kn"},
-        {"name":"POINT / 300 kN","sn":"P20141","a":66.90203,"b":-0.000948,"c":0.00000052,"cap":300,"unit":"kn"},
-        {"name":"POINT / 500 kN","sn":"KT5062","a":40.08622,"b":-0.000058,"c":-0.00000017,"cap":500,"unit":"kn"},
-        {"name":"POINT / 500 kN","sn":"PT50116","a":39.9433,"b":0.000108,"c":0.00000003,"cap":500,"unit":"kn"},
-        {"name":"BONGSHIN / 500 kN","sn":"R34368","a":40.25535,"b":-0.000471,"c":0.000000027,"cap":500,"unit":"kn"},
-        {"name":"POINT / 1 000 kN","sn":"P20143","a":20.05506,"b":-0.000059,"c":-0.0000000001,"cap":1000,"unit":"kn"},
-        {"name":"POINT / 2 000 kN","sn":"KT20275","a":10.0291,"b":-0.0000072,"c":-0.0000000032,"cap":2000,"unit":"kn"},
-        {"name":"POINT / 5 000 kN","sn":"PT5016","a":4.01864,"b":-0.0000029,"c":-0.00000000002,"cap":5000,"unit":"kn"},
-        {"name":"WONBANG / 10 MN","sn":"WB-2411","a":2.0126,"b":-0.0000017,"c":0.00000000005,"cap":10000,"unit":"kn"},
-        {"name":"WONBANG / 10 MN","sn":"WB-121001","a":2.009767,"b":-0.0000011,"c":0.00000000001,"cap":10000,"unit":"kn"},
-        {"name":"AND / 5 kN","sn":"C6313766","a":3.998388,"b":0.000000043,"c":-0.00000000001,"cap":5,"unit":"kn"},
-        {"name":"HBM / 10 kN","sn":"430333A","a":2001.761,"b":-0.10969,"c":-0.006381,"cap":10,"unit":"kn"},
-        {"name":"AND / 20 kN","sn":"C6507848","a":998.2782,"b":0.140488,"c":-0.002765,"cap":20,"unit":"kn"},
-        {"name":"CAS / 50 kN","sn":"1603SBAK901011","a":400.3015,"b":-0.006796,"c":-0.0000147,"cap":50,"unit":"kn"},
-        {"name":"Power ENG / 100 kN","sn":"0009171","a":199.1712,"b":0.007305,"c":0.0000164,"cap":100,"unit":"kn"},
-        {"name":"HBM / 200 kN","sn":"J98727","a":99.89337,"b":0.000047,"c":0.00000207,"cap":200,"unit":"kn"}
+        {"name":"BONGSHIN / 500 N","sn":"X12286","a":39.98035,"b":2.474438e-05,"c":7.938702e-08,"cap":500,"calcUnit":"n"},
+        {"name":"BONGSHIN / 1 kN","sn":"P18211","a":19.98944,"b":-9.063061e-06,"c":1.64958e-08,"cap":1,"calcUnit":"n"},
+        {"name":"BONGSHIN / 2 kN","sn":"O39969","a":10.0023,"b":-2.603319e-06,"c":1.189028e-09,"cap":2,"calcUnit":"n"},
+        {"name":"HBM / 2 kN","sn":"352916A","a":10.00164,"b":-1.279602e-06,"c":2.138041e-10,"cap":2,"calcUnit":"n"},
+        {"name":"HBM / 5 kN","sn":"032593A","a":4.002789,"b":1.1138e-06,"c":-1.915273e-10,"cap":5,"calcUnit":"n"},
+        {"name":"POINT / 10 kN","sn":"C9T0105","a":1998.678,"b":-0.028778,"c":0.015466,"cap":10,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 10 kN","sn":"X50243","a":1997.558,"b":0.21389,"c":0.0083516,"cap":10,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 30 kN","sn":"O08300","a":666.7137,"b":-0.005792,"c":0.0002647,"cap":30,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 30 kN","sn":"R25323","a":666.6861,"b":-0.010685,"c":0.0003837,"cap":30,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 30 kN","sn":"W27372","a":665.2203,"b":0.072874,"c":-0.0008043,"cap":30,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 50 kN","sn":"V44443","a":398.4546,"b":0.041154,"c":-0.0001985,"cap":50,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 100 kN","sn":"R23681","a":200.9349,"b":-0.008265,"c":-0.0000037,"cap":100,"calcUnit":"kn"},
+        {"name":"POINT / 100 kN","sn":"KT1031","a":200.6634,"b":-0.005519,"c":-0.0000108,"cap":100,"calcUnit":"kn"},
+        {"name":"KOLAS / 100 kN","sn":"E2T1012","a":198.3617,"b":0.024976,"c":-0.0000782,"cap":100,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 300 kN","sn":"R34358","a":67.01353,"b":-0.00119,"c":0.00000015,"cap":300,"calcUnit":"kn"},
+        {"name":"POINT / 300 kN","sn":"P20141","a":66.90203,"b":-0.000948,"c":0.00000052,"cap":300,"calcUnit":"kn"},
+        {"name":"POINT / 500 kN","sn":"KT5062","a":40.08622,"b":-0.000058,"c":-0.00000017,"cap":500,"calcUnit":"kn"},
+        {"name":"POINT / 500 kN","sn":"PT50116","a":39.9433,"b":0.000108,"c":0.00000003,"cap":500,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 500 kN","sn":"R34368","a":40.25535,"b":-0.000471,"c":0.000000027,"cap":500,"calcUnit":"kn"},
+        {"name":"POINT / 1 000 kN","sn":"P20143","a":20.05506,"b":-0.000059,"c":-1.4096e-10,"cap":1000,"calcUnit":"kn"},
+        {"name":"POINT / 2 000 kN","sn":"KT20275","a":10.0291,"b":-0.0000072,"c":-3.236e-09,"cap":2000,"calcUnit":"kn"},
+        {"name":"POINT / 5 000 kN","sn":"PT5016","a":4.01864,"b":-2.989e-06,"c":-2.757e-11,"cap":5000,"calcUnit":"kn"},
+        {"name":"WONBANG / 10 MN","sn":"WB-2411","a":2.0126,"b":-1.731e-06,"c":5.555e-11,"cap":10000,"calcUnit":"kn"},
+        {"name":"WONBANG / 10 MN","sn":"WB-121001","a":2.009767,"b":-1.137e-06,"c":1.178e-11,"cap":10000,"calcUnit":"kn"},
+        {"name":"AND / 5 kN","sn":"C6313766","a":3.998388,"b":4.328e-08,"c":-1.465e-11,"cap":5,"calcUnit":"n"}
     ];
 
     const dbSelect = document.getElementById('load-cell-db');
@@ -143,15 +135,18 @@
         if(selectedIdx === "") return;
         const item = loadCellDB[selectedIdx];
         
-        document.getElementById('ref-unit-sel').value = item.unit;
+        // 하중 단위 설정 (N/kN)
+        document.getElementById('ref-unit-sel').value = (item.calcUnit === 'n') ? 'n' : 'kn';
         const knInputs = document.querySelectorAll('.kn-val');
         const constInputs = document.querySelectorAll('.const-val');
         
-        // 5등분 하중 및 상수 계산
         for(let i=1; i<=5; i++) {
-            const load = (item.cap / 5) * i;
-            const constant = (item.a * load) + (item.b * Math.pow(load, 2)) + (item.c * Math.pow(load, 3));
-            knInputs[i-1].value = load;
+            const load_kn = (item.cap / 5) * i;
+            // 성적서 지시사항에 따라 N 단위가 필요한 경우 변환
+            const X = (item.calcUnit === 'n') ? (item.cap === 500 ? (500/5*i) : load_kn * 1000) : load_kn;
+            const constant = (item.a * X) + (item.b * Math.pow(X, 2)) + (item.c * Math.pow(X, 3));
+            
+            knInputs[i-1].value = (item.calcUnit === 'n' && item.cap !== 500) ? load_kn * 1000 : load_kn;
             constInputs[i-1].value = Math.round(constant);
         }
         document.getElementById('manufacturer').value = item.name.split('/')[0].trim();
