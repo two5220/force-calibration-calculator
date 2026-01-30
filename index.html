@@ -50,9 +50,8 @@
             </div>
         </div>
         <div style="margin-bottom: 10px;">
-            <label style="font-size: 0.75rem; color: #007bff; font-weight: bold;">기준 장비 선택 (DB 로드)</label>
             <select id="load-cell-db" onchange="applyLoadCell()">
-                <option value="">-- 장비를 선택하세요 --</option>
+                <option value="">-- 기준 장비 선택 (DB 로드) --</option>
             </select>
         </div>
         <div style="margin-bottom: 8px;"><select id="ref-unit-sel"><option value="kn">kN (킬로뉴턴)</option><option value="n">N (뉴턴)</option></select></div>
@@ -155,16 +154,16 @@
         if (currentRows === 5) {
             thead.innerHTML = `<tr><th width="30">#</th><th>하중</th><th>기준 상수</th></tr>`;
             for(let i=0; i<5; i++) {
-                tbody.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val"></td><td><input type="number" class="const-val"></td></tr>`;
+                tbody.innerHTML += `<tr><td>${i+1}</td><td><input type="number" class="kn-val" data-idx="${i}"></td><td><input type="number" class="const-val" data-idx="${i}"></td></tr>`;
             }
         } else {
-            // 10칸일 때 가로 2열 오름차순 배치 (1|2, 3|4...)
+            // 10칸일 때 수직 분할 오름차순 배치 (1-5열 | 6-10열)
             thead.innerHTML = `<tr><th width="25">#</th><th>하중</th><th>상수</th><th width="25">#</th><th>하중</th><th>상수</th></tr>`;
             for(let i=0; i<5; i++) {
                 tbody.innerHTML += `
                     <tr>
-                        <td style="background:#f9f9f9">${2*i+1}</td><td><input type="number" class="kn-val"></td><td><input type="number" class="const-val"></td>
-                        <td style="background:#f9f9f9">${2*i+2}</td><td><input type="number" class="kn-val"></td><td><input type="number" class="const-val"></td>
+                        <td style="background:#f9f9f9">${i+1}</td><td><input type="number" class="kn-val" data-idx="${i}"></td><td><input type="number" class="const-val" data-idx="${i}"></td>
+                        <td style="background:#f9f9f9">${i+6}</td><td><input type="number" class="kn-val" data-idx="${i+5}"></td><td><input type="number" class="const-val" data-idx="${i+5}"></td>
                     </tr>`;
             }
         }
@@ -175,15 +174,18 @@
         if(selectedIdx === "") return;
         const item = loadCellDB[selectedIdx];
         document.getElementById('ref-unit-sel').value = (item.calcUnit === 'n') ? 'n' : 'kn';
-        const knInputs = document.querySelectorAll('.kn-val');
-        const constInputs = document.querySelectorAll('.const-val');
         
         for(let i=1; i<=currentRows; i++) {
             const load_kn = (item.cap / currentRows) * i;
             const X = (item.calcUnit === 'n') ? (item.cap === 500 ? (500/currentRows*i) : load_kn * 1000) : load_kn;
             const constant = (item.a * X) + (item.b * Math.pow(X, 2)) + (item.c * Math.pow(X, 3));
-            knInputs[i-1].value = (item.calcUnit === 'n' && item.cap !== 500) ? (load_kn * 1000).toFixed(0) : load_kn.toFixed(currentRows === 10 ? 1 : 0);
-            constInputs[i-1].value = Math.round(constant);
+            
+            const knInput = document.querySelector(`.kn-val[data-idx="${i-1}"]`);
+            const constInput = document.querySelector(`.const-val[data-idx="${i-1}"]`);
+            if(knInput && constInput) {
+                knInput.value = (item.calcUnit === 'n' && item.cap !== 500) ? (load_kn * 1000).toFixed(0) : load_kn.toFixed(currentRows === 10 ? 1 : 0);
+                constInput.value = Math.round(constant);
+            }
         }
     }
 
@@ -192,10 +194,10 @@
 
     function calculateAll() {
         const refUnit = document.getElementById('ref-unit-sel').value;
-        const knT = Array.from(document.querySelectorAll('.kn-val')).map(i => {
+        const knT = Array.from(document.querySelectorAll('.kn-val')).sort((a,b) => a.dataset.idx - b.dataset.idx).map(i => {
             let v = parseFloat(i.value); return (v && refUnit === 'n') ? v / 1000 : v;
         });
-        const csT = Array.from(document.querySelectorAll('.const-val')).map(i => parseFloat(i.value));
+        const csT = Array.from(document.querySelectorAll('.const-val')).sort((a,b) => a.dataset.idx - b.dataset.idx).map(i => parseFloat(i.value));
         const unit = document.getElementById('global-unit-sel').value;
         const resA = document.getElementById('result-area');
         const convFactors = { kn: 1, n: 1000, kgf: 101.9716, gf: 101971.6, lbf: 224.8089 };
