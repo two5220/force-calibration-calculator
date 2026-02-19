@@ -37,7 +37,7 @@
 <div class="container">
     <div class="header-area">
         <h2>FORCE CALIBRATION CALCULATOR</h2>
-        <span class="creator-tag">Created by D</span>
+        <span class="creator-tag">v26.02.20 | Created by D</span>
     </div>
 
     <div class="section">
@@ -93,30 +93,36 @@
 
     const loadCellDB = [
         {"name":"BONGSHIN / 500 N","sn":"X12286","a":39.98035,"b":2.474438e-05,"c":7.938702e-08,"cap":500,"calcUnit":"n"},
-        {"name":"BONGSHIN / 1 kN","sn":"P18211","a":19.98944,"b":-9.063061e-06,"c":1.64958e-08,"cap":1,"calcUnit":"n"},
-        {"name":"BONGSHIN / 2 kN","sn":"O39969","a":10.0023,"b":-2.603319e-06,"c":1.189028e-09,"cap":2,"calcUnit":"n"},
+        {"name":"BONGSHIN / 1 kN","sn":"P18211","a":19.98944,"b":-9.063061e-06,"c":1.649580e-08,"cap":1,"calcUnit":"n"},
+        {"name":"BONGSHIN / 2 kN","sn":"O39969","a":10.00230,"b":-2.603319e-06,"c":1.189028e-09,"cap":2,"calcUnit":"n"},
         {"name":"HBM / 2 kN","sn":"352916A","a":10.00164,"b":-1.279602e-06,"c":2.138041e-10,"cap":2,"calcUnit":"n"},
-        {"name":"HBM / 5 kN","sn":"032593A","a":4.002789,"b":1.1138e-06,"c":-1.915273e-10,"cap":5,"calcUnit":"n"},
-        {"name":"POINT / 10 kN","sn":"C9T0105","a":1998.678,"b":-0.028778,"c":0.015466,"cap":10,"calcUnit":"kn"},
-        {"name":"BONGSHIN / 10 kN","sn":"X50243","a":1997.558,"b":0.21389,"c":0.0083516,"cap":10,"calcUnit":"kn"},
-        {"name":"BONGSHIN / 30 kN","sn":"O08300","a":666.7137,"b":-0.005792,"c":0.0002647,"cap":30,"calcUnit":"kn"},
-        {"name":"BONGSHIN / 30 kN","sn":"R25323","a":666.6861,"b":-0.010685,"c":0.0003837,"cap":30,"calcUnit":"kn"},
-        {"name":"BONGSHIN / 30 kN","sn":"W27372","a":665.2203,"b":0.072874,"c":-0.0008043,"cap":30,"calcUnit":"kn"},
-        {"name":"BONGSHIN / 50 kN","sn":"V44443","a":398.4546,"b":0.041154,"c":-0.0001985,"cap":50,"calcUnit":"kn"},
-        {"name":"BONGSHIN / 100 kN","sn":"R23681","a":200.9349,"b":-0.008265,"c":-3.695338e-06,"cap":100,"calcUnit":"kn"},
-        {"name":"POINT / 100 kN","sn":"KT1031","a":200.6634,"b":-0.005519,"c":-1.079894e-05,"cap":100,"calcUnit":"kn"},
-        {"name":"KOLAS / 100 kN","sn":"E2T1012","a":198.3617,"b":0.024976,"c":-7.817969e-05,"cap":100,"calcUnit":"kn"},
-        {"name":"BONGSHIN / 300 kN","sn":"R34358","a":67.01353,"b":-0.00119,"c":1.542032e-07,"cap":300,"calcUnit":"kn"},
-        {"name":"POINT / 300 kN","sn":"P20141","a":66.90203,"b":-0.000948,"c":5.236033e-07,"cap":300,"calcUnit":"kn"},
-        {"name":"POINT / 500 kN","sn":"KT5062","a":40.08622,"b":-5.878e-05,"c":-1.771e-07,"cap":500,"calcUnit":"kn"},
-        {"name":"POINT / 500 kN","sn":"PT50116","a":39.9433,"b":0.000108,"c":3.235e-08,"cap":500,"calcUnit":"kn"},
-        {"name":"BONGSHIN / 500 kN","sn":"R34368","a":40.25535,"b":-0.000471,"c":2.727e-08,"cap":500,"calcUnit":"kn"},
-        {"name":"POINT / 1 000 kN","sn":"P20143","a":20.05506,"b":-5.919e-05,"c":-1.41e-10,"cap":1000,"calcUnit":"kn"},
-        {"name":"POINT / 2 000 kN","sn":"KT20275","a":10.0291,"b":-7.23e-06,"c":-3.236e-09,"cap":2000,"calcUnit":"kn"},
-        {"name":"POINT / 5 000 kN","sn":"PT5016","a":4.01864,"b":-2.99e-06,"c":-2.757e-11,"cap":5000,"calcUnit":"kn"},
-        {"name":"WONBANG / 10 MN","sn":"WB-2411","a":2.0126,"b":-1.731e-06,"c":5.555e-11,"cap":10000,"calcUnit":"kn"},
-        {"name":"WONBANG / 10 MN","sn":"WB-121001","a":2.009767,"b":-1.137e-06,"c":1.178e-11,"cap":10000,"calcUnit":"kn"},
-        {"name":"AND / 5 kN","sn":"C6313766","a":3.998388,"b":4.328e-08,"c":-1.465e-11,"cap":5,"calcUnit":"n"}
+        {"name":"HBM / 5 kN","sn":"032593A","a":4.002789,"b":1.113800e-06,"c":-1.915273e-10,"cap":5,"calcUnit":"n"},
+        {"name":"POINT / 10 kN","sn":"C9T0105","a":1998.678,"b":-0.02877825,"c":0.01546610,"cap":10,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 10 kN","sn":"X50243","a":1997.558,"b":0.2138901,"c":0.008351612,"cap":10,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 30 kN","sn":"O08300","a":666.7137,"b":-0.005791597,"c":0.0002647304,"cap":30,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 30 kN","sn":"R25323","a":666.4734,"b":0.03531457,"c":0.00008448706,"cap":30,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 30 kN","sn":"W27372","a":665.3899,"b":0.05839501,"c":-0.0004978391,"cap":30,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 50 kN","sn":"V44443","a":398.4546,"b":0.04115374,"c":-0.0001985226,"cap":50,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 100 kN","sn":"R23681","a":200.9504,"b":-0.008195742,"c":-0.000001670895,"cap":100,"calcUnit":"kn"},
+        {"name":"POINT / 100 kN","sn":"KT1031","a":200.5670,"b":-0.002816439,"c":-0.00002938679,"cap":100,"calcUnit":"kn"},
+        {"name":"KOLAS / 100 kN","sn":"E2T1012","a":198.3617,"b":0.02497561,"c":-0.00007817969,"cap":100,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 300 kN","sn":"R34358","a":67.01353,"b":-0.001190496,"c":1.542032e-07,"cap":300,"calcUnit":"kn"},
+        {"name":"POINT / 300 kN","sn":"P20141","a":66.90203,"b":-0.0009483764,"c":5.236033e-07,"cap":300,"calcUnit":"kn"},
+        {"name":"POINT / 500 kN","sn":"KT5062","a":40.08622,"b":-5.878252e-05,"c":-1.771103e-07,"cap":500,"calcUnit":"kn"},
+        {"name":"POINT / 500 kN","sn":"PT50116","a":39.94330,"b":0.0001080258,"c":3.234982e-08,"cap":500,"calcUnit":"kn"},
+        {"name":"BONGSHIN / 500 kN","sn":"R34368","a":40.25535,"b":-0.0004710859,"c":2.727066e-08,"cap":500,"calcUnit":"kn"},
+        {"name":"POINT / 1 000 kN","sn":"P20143","a":20.05506,"b":-5.918683e-05,"c":-1.409603e-10,"cap":1000,"calcUnit":"kn"},
+        {"name":"POINT / 2 000 kN","sn":"KT20275","a":10.02910,"b":-7.231264e-06,"c":-3.236071e-09,"cap":2000,"calcUnit":"kn"},
+        {"name":"POINT / 5 000 kN","sn":"PT5016","a":4.018640,"b":-2.989603e-06,"c":-2.757321e-11,"cap":5000,"calcUnit":"kn"},
+        {"name":"WONBANG / 10 MN","sn":"WB-2411","a":2.012600,"b":-1.730645e-06,"c":5.554868e-11,"cap":10000,"calcUnit":"kn"},
+        {"name":"WONBANG / 10 MN","sn":"WB-121001","a":2.009767,"b":-1.137488e-06,"c":1.178222e-11,"cap":10000,"calcUnit":"kn"},
+        {"name":"HBM / 2 kN","sn":"352916A","a":10.00615,"b":-2.767163e-06,"c":-1.257039e-10,"cap":2,"calcUnit":"n"},
+        {"name":"AND / 5 kN","sn":"C6313766","a":3.998388,"b":4.327826e-08,"c":-1.465070e-11,"cap":5,"calcUnit":"n"},
+        {"name":"HBM / 10 kN","sn":"430333A","a":2001.761,"b":-0.1096946,"c":-0.006381033,"cap":10,"calcUnit":"kn"},
+        {"name":"AND / 20 kN","sn":"C6507848","a":998.2782,"b":0.1404880,"c":-0.002765272,"cap":20,"calcUnit":"kn"},
+        {"name":"CAS / 50 kN","sn":"1603SBAK901011","a":400.3015,"b":-0.006795663,"c":-0.00001479740,"cap":50,"calcUnit":"kn"},
+        {"name":"Power ENG / 100 kN","sn":"0009171","a":199.1712,"b":0.007304787,"c":0.00001647345,"cap":100,"calcUnit":"kn"},
+        {"name":"HBM / 200 kN","sn":"J98727","a":99.89337,"b":0.00004726468,"c":0.000002078305,"cap":200,"calcUnit":"kn"}
     ];
 
     function init() {
