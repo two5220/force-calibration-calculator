@@ -128,19 +128,29 @@
         .relation-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 0.85rem; line-height: 1.5; color: #334155; }
         .relation-card strong { color: var(--accent); font-weight: 700; }
 
-        /* 정반 규격 테이블 스타일 */
+        /* 💡 정반 규격 테이블 스타일 */
         .ref-table-wrap { overflow-x: auto; margin-top: 15px; background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; }
-        .ref-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; white-space: nowrap; text-align: center; }
+        .ref-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; white-space: nowrap; text-align: center; cursor: pointer; }
         .ref-table th { background: #f1f5f9; color: #334155; padding: 10px 4px; border: 1px solid #cbd5e1; font-weight: 700; }
         .ref-table td { padding: 8px 4px; border: 1px solid #e2e8f0; color: #475569; }
-        .ref-table tbody tr:nth-child(even) { background: #f8fafc; }
-        .ref-table tbody tr:hover { background: #f1f5f9; }
+        .ref-table tbody tr:nth-child(even) td { background: #f8fafc; }
 
         /* 세로 메뉴 구분선 효과 (강조) */
         .ref-table th.col-divider, 
         .ref-table td.col-divider {
             border-right: 2px solid #64748b !important;
         }
+        
+        /* 💡 선택된 행 뚜렷한 강조 디자인 (애니메이션/효과 없음) */
+        .ref-table tbody tr.selected-row td {
+            background-color: #fef08a !important; /* 선명한 노란색 */
+            color: #b45309 !important; /* 진한 주황/갈색 텍스트 */
+            font-weight: 800 !important;
+            border-top: 2px solid #ea580c !important; /* 굵고 진한 경계선 */
+            border-bottom: 2px solid #ea580c !important;
+        }
+        .ref-table tbody tr.selected-row td:first-child { border-left: 2px solid #ea580c !important; }
+        .ref-table tbody tr.selected-row td:last-child { border-right: 2px solid #ea580c !important; }
         
         /* 다이어그램 영역 */
         .diagram-box { border: 1px solid #e2e8f0; padding: 20px; text-align: center; margin: 15px 0; border-radius: 10px; background: #f8fafc; }
@@ -157,7 +167,7 @@
 
     <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('force')">힘 교정</button>
-        <button class="tab-btn" onclick="switchTab('brinell')">브리넬 경도 환산</button>
+        <button class="tab-btn" onclick="switchTab('brinell')">브리넬 환산</button>
         <button class="tab-btn" onclick="switchTab('dewpoint')">노점 온도</button>
         <button class="tab-btn" onclick="switchTab('v-pressure')">압력 변환</button>
         <button class="tab-btn" onclick="switchTab('v-force')">힘 변환</button>
@@ -267,56 +277,62 @@
     </div>
 
     <div id="dewpoint" class="tab-content">
-        <div class="info-badge-panel" style="border-left-color: #10b981;">
-            <div style="text-align: center;">💡 <strong>3개 중 2가지 변수</strong>를 입력하면 자동 역산합니다.</div>
-        </div>
-
-        <div class="calc-row">
-            <div class="label-box">
-                <div class="label-title">공기 온도</div>
-                <div class="label-sub">Air Temp (T)</div>
+        <div class="section">
+            <div class="section-title">
+                <span>⚙️ 노점 온도 계산기</span>
+                <button class="btn-reset" style="background:#6c757d" onclick="resetDp()">초기화</button>
             </div>
-            <div class="custom-spinner">
-                <button class="spin-btn" onclick="step('dp_t', -0.1)">-</button>
-                <div class="input-container">
-                    <input type="number" id="dp_t" placeholder="입력" step="0.1" oninput="runDewPointCalc()">
-                    <span class="unit-label">°C</span>
+            <div class="info-badge-panel" style="border-left-color: #10b981;">
+                <div style="text-align: center;">💡 <strong>3개 중 2가지 변수</strong>를 입력하면 실시간 역산됩니다.</div>
+            </div>
+
+            <div class="calc-row">
+                <div class="label-box">
+                    <div class="label-title">공기 온도</div>
+                    <div class="label-sub">Air Temp (T)</div>
                 </div>
-                <button class="spin-btn" onclick="step('dp_t', 0.1)">+</button>
-            </div>
-        </div>
-
-        <div class="calc-row">
-            <div class="label-box">
-                <div class="label-title">상대 습도</div>
-                <div class="label-sub">Humidity (RH)</div>
-            </div>
-            <div class="custom-spinner">
-                <button class="spin-btn" onclick="step('dp_rh', -1)">-</button>
-                <div class="input-container">
-                    <input type="number" id="dp_rh" placeholder="입력" step="1" min="1" max="100" oninput="runDewPointCalc()">
-                    <span class="unit-label">%</span>
+                <div class="custom-spinner">
+                    <button class="spin-btn" onclick="step('dp_t', -0.1)">-</button>
+                    <div class="input-container">
+                        <input type="number" id="dp_t" placeholder="입력" step="0.1" oninput="handleDpInput('dp_t')">
+                        <span class="unit-label">°C</span>
+                    </div>
+                    <button class="spin-btn" onclick="step('dp_t', 0.1)">+</button>
                 </div>
-                <button class="spin-btn" onclick="step('dp_rh', 1)">+</button>
             </div>
-        </div>
 
-        <div class="calc-row">
-            <div class="label-box">
-                <div class="label-title">노점 온도</div>
-                <div class="label-sub">Dew Point (Td)</div>
-            </div>
-            <div class="custom-spinner">
-                <button class="spin-btn" onclick="step('dp_td', -0.1)">-</button>
-                <div class="input-container">
-                    <input type="number" id="dp_td" placeholder="입력" step="0.1" oninput="runDewPointCalc()">
-                    <span class="unit-label">°C</span>
+            <div class="calc-row">
+                <div class="label-box">
+                    <div class="label-title">상대 습도</div>
+                    <div class="label-sub">Humidity (RH)</div>
                 </div>
-                <button class="spin-btn" onclick="step('dp_td', 0.1)">+</button>
+                <div class="custom-spinner">
+                    <button class="spin-btn" onclick="step('dp_rh', -0.1)">-</button>
+                    <div class="input-container">
+                        <input type="number" id="dp_rh" placeholder="입력" step="0.1" min="0.1" max="100" oninput="handleDpInput('dp_rh')">
+                        <span class="unit-label">%</span>
+                    </div>
+                    <button class="spin-btn" onclick="step('dp_rh', 0.1)">+</button>
+                </div>
             </div>
-        </div>
 
-        <div class="status-message" id="dp_status">수치를 2개 이상 입력해 주세요.</div>
+            <div class="calc-row">
+                <div class="label-box">
+                    <div class="label-title">노점 온도</div>
+                    <div class="label-sub">Dew Point (Td)</div>
+                </div>
+                <div class="custom-spinner">
+                    <button class="spin-btn" onclick="step('dp_td', -0.1)">-</button>
+                    <div class="input-container">
+                        <input type="number" id="dp_td" placeholder="입력" step="0.1" oninput="handleDpInput('dp_td')">
+                        <span class="unit-label">°C</span>
+                    </div>
+                    <button class="spin-btn" onclick="step('dp_td', 0.1)">+</button>
+                </div>
+            </div>
+
+            <div class="status-message" id="dp_status">수치를 2개 이상 입력해 주세요.</div>
+        </div>
 
         <div class="guide-section">
             <h3>🌱 노점 온도(이슬점)란 무엇인가요?</h3>
@@ -345,7 +361,7 @@
         <div class="section">
             <div class="section-title">
                 <span>⚙️ 압력 변환</span>
-                <button class="btn-reset" onclick="resetAllFields('press')">초기화</button>
+                <button class="btn-reset" style="background:#6c757d" onclick="resetAllFields('press')">초기화</button>
             </div>
             <div class="conv-list-grid" id="press">
                 <div class="conv-row-item"><label>Pa</label><input type="number" id="p-pa" oninput="convertPressure('pa')"></div>
@@ -369,7 +385,7 @@
         <div class="section">
             <div class="section-title">
                 <span>⚙️ 힘 변환</span>
-                <button class="btn-reset" onclick="resetAllFields('force_conv')">초기화</button>
+                <button class="btn-reset" style="background:#6c757d" onclick="resetAllFields('force_conv')">초기화</button>
             </div>
             <div class="conv-list-grid" id="force_conv">
                 <div class="conv-row-item"><label>N</label><input type="number" id="f-n" oninput="convertForceTab('n')"></div>
@@ -500,6 +516,20 @@
         
         document.getElementById(tabId).classList.add('active');
         event.currentTarget.classList.add('active');
+    }
+
+    /* ---------------- 테이블 행(Row) 정적 하이라이트 제어 ---------------- */
+    function initTableHighlight() {
+        const tables = document.querySelectorAll('.ref-table');
+        tables.forEach(table => {
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                row.addEventListener('click', function() {
+                    rows.forEach(r => r.classList.remove('selected-row'));
+                    this.classList.add('selected-row');
+                });
+            });
+        });
     }
 
     /* ---------------- 힘 교정 엔진 로직 ---------------- */
@@ -694,14 +724,14 @@
         
         if (inputId.startsWith('d') && newVal < 0) newVal = 0;
         if (inputId === 'dp_rh' && newVal > 100) newVal = 100;
-        if (inputId === 'dp_rh' && newVal < 0) newVal = 0;
+        if (inputId === 'dp_rh' && newVal < 0.1) newVal = 0.1;
 
-        input.value = inputId.startsWith('d') ? newVal.toFixed(2) : newVal.toFixed(precision);
+        input.value = inputId.startsWith('d') ? newVal.toFixed(2) : newVal.toFixed(1);
         
         if(inputId.startsWith('d')) {
             calcHB(inputId.replace('d', ''));
-        } else {
-            runDewPointCalc();
+        } else if (inputId.startsWith('dp_')) {
+            handleDpInput(inputId);
         }
     }
 
@@ -723,74 +753,102 @@
         output.innerText = hb.toFixed(1);
     }
 
-    /* ---------------- 노점 온도 추적 연산 엔진 ---------------- */
+    /* ---------------- 💡 노점 온도 3-Way 실시간 추적 엔진 ---------------- */
+    let dpEditedQueue = [];
+
+    function resetDp() {
+        document.getElementById('dp_t').value = '';
+        document.getElementById('dp_rh').value = '';
+        document.getElementById('dp_td').value = '';
+        dpEditedQueue = [];
+        document.getElementById('dp_status').innerText = "수치를 2개 이상 입력해 주세요.";
+    }
+
+    function handleDpInput(id) {
+        const valStr = document.getElementById(id).value;
+        
+        // 입력값이 비워질 경우 큐에서 제거하고 초기화 모드로 전환
+        if (valStr.trim() === '') {
+            dpEditedQueue = dpEditedQueue.filter(x => x !== id);
+            document.getElementById('dp_status').innerText = "수치를 2개 이상 입력해 주세요.";
+            return;
+        }
+
+        if (dpEditedQueue[dpEditedQueue.length - 1] !== id) {
+            dpEditedQueue = dpEditedQueue.filter(x => x !== id);
+            dpEditedQueue.push(id);
+        }
+        if (dpEditedQueue.length > 2) {
+            dpEditedQueue.shift();
+        }
+        runDewPointCalc();
+    }
+
     const a = 17.625;
     const b = 243.04;
 
     function runDewPointCalc() {
-        const tEl = document.getElementById('dp_t');
-        const rhEl = document.getElementById('dp_rh');
-        const tdEl = document.getElementById('dp_td');
         const statusEl = document.getElementById('dp_status');
+        
+        if (dpEditedQueue.length < 2) {
+            statusEl.innerText = "수치를 2개 이상 입력해 주세요.";
+            return;
+        }
 
-        let t = tEl.value !== "" ? parseFloat(tEl.value) : null;
-        let rh = rhEl.value !== "" ? parseFloat(rhEl.value) : null;
-        let td = tdEl.value !== "" ? parseFloat(tdEl.value) : null;
+        const allIds = ['dp_t', 'dp_rh', 'dp_td'];
+        const targetId = allIds.find(id => !dpEditedQueue.includes(id));
+        
+        const id1 = dpEditedQueue[0];
+        const id2 = dpEditedQueue[1];
+        
+        const val1 = parseFloat(document.getElementById(id1).value);
+        const val2 = parseFloat(document.getElementById(id2).value);
+        
+        if (isNaN(val1) || isNaN(val2)) {
+            statusEl.innerText = "수치를 정확하게 입력해 주세요.";
+            return;
+        }
 
-        let inputs = [t, rh, td].filter(v => v !== null);
+        let t = null, rh = null, td = null;
+        if (id1 === 'dp_t' || id2 === 'dp_t') t = id1 === 'dp_t' ? val1 : val2;
+        if (id1 === 'dp_rh' || id2 === 'dp_rh') rh = id1 === 'dp_rh' ? val1 : val2;
+        if (id1 === 'dp_td' || id2 === 'dp_td') td = id1 === 'dp_td' ? val1 : val2;
 
-        if (t !== null && rh !== null && td === null) {
-            if (rh <= 0 || rh > 100) { statusEl.innerText = "상대습도는 1~100% 사이여야 합니다."; return; }
+        if (targetId === 'dp_td') {
+            if (rh <= 0 || rh > 100) { statusEl.innerText = "상대습도는 0.1~100% 사이여야 합니다."; return; }
             let alpha = ((a * t) / (b + t)) + Math.log(rh / 100);
             let resultTd = (b * alpha) / (a - alpha);
-            tdEl.placeholder = resultTd.toFixed(1);
-            statusEl.innerHTML = "✅ 입력값 기반 <strong>[노점 온도(Td)]</strong> 도출 완료";
+            document.getElementById('dp_td').value = resultTd.toFixed(1);
+            statusEl.innerHTML = "✅ <strong>[노점 온도(Td)]</strong> 자동 계산 완료";
         } 
-        else if (t !== null && td !== null && rh === null) {
+        else if (targetId === 'dp_rh') {
             if (td > t) { statusEl.innerText = "노점 온도는 공기 온도보다 높을 수 없습니다."; return; }
             let resultRh = 100 * Math.exp((a * td) / (b + td) - (a * t) / (b + t));
             if(resultRh > 100) resultRh = 100;
-            rhEl.placeholder = Math.round(resultRh);
-            statusEl.innerHTML = "✅ 입력값 기반 <strong>[상대 습도(RH)]</strong> 도출 완료";
+            if(resultRh < 0.1) resultRh = 0.1;
+            document.getElementById('dp_rh').value = resultRh.toFixed(1);
+            statusEl.innerHTML = "✅ <strong>[상대 습도(RH)]</strong> 자동 계산 완료";
         } 
-        else if (rh !== null && td !== null && t === null) {
-            if (rh <= 0 || rh > 100) { statusEl.innerText = "상대습도는 1~100% 사이여야 합니다."; return; }
+        else if (targetId === 'dp_t') {
+            if (rh <= 0 || rh > 100) { statusEl.innerText = "상대습도는 0.1~100% 사이여야 합니다."; return; }
             let gamma = ((a * td) / (b + td)) - Math.log(rh / 100);
             let resultT = (b * gamma) / (a - gamma);
-            tEl.placeholder = resultT.toFixed(1);
-            statusEl.innerHTML = "✅ 입력값 기반 <strong>[공기 온도(T)]</strong> 도출 완료";
-        } 
-        else if (inputs.length === 3) {
-            statusEl.innerText = "3개 중 2개만 남기고 한 칸을 비우면 역산이 작동합니다.";
-        } else {
-            if (t === null) tEl.placeholder = "입력";
-            if (rh === null) rhEl.placeholder = "입력";
-            if (td === null) tdEl.placeholder = "입력";
-            statusEl.innerText = "수치를 2개 이상 입력해 주세요. 빈 칸이 자동 계산됩니다.";
+            document.getElementById('dp_t').value = resultT.toFixed(1);
+            statusEl.innerHTML = "✅ <strong>[공기 온도(T)]</strong> 자동 계산 완료";
         }
     }
 
-    /* ---------------- 압력 단위 변환 엔진 ---------------- */
+    /* ---------------- 압력 단위 변환 엔진 (버그 완벽 수정) ---------------- */
     const pressFactors = {
-        psi: 1,
-        pa: 6894.75672,
-        hpa: 68.947567,
-        kpa: 6.894757,
-        mpa: 0.006895,
-        bar: 0.068948,
-        ncm2: 0.689476,
-        kgfcm2: 0.070307,
-        kgfm2: 703.069213,
-        mmhg: 51.714928,
-        cmhg: 5.171493,
-        mmh2o: 703.06905,
-        cmh2o: 70.306905
+        psi: 1, pa: 6894.75672, hpa: 68.947567, kpa: 6.894757, mpa: 0.006895, bar: 0.068948,
+        ncm2: 0.689476, kgfcm2: 0.070307, kgfm2: 703.069213, mmhg: 51.714928, cmhg: 5.171493, mmh2o: 703.06905, cmh2o: 70.306905
     };
 
     function convertPressure(type) {
         const valStr = document.getElementById('p-' + type).value;
         
-        if (valStr === '') {
+        // 사용자가 값을 비웠을 때 모든 칸 자동 클리어 
+        if (valStr.trim() === '') {
             for (let unit in pressFactors) {
                 if (unit !== type) {
                     const targetInput = document.getElementById('p-' + unit);
@@ -804,30 +862,22 @@
         if (isNaN(val)) return;
 
         const basePsi = val / pressFactors[type];
-        
         for (let unit in pressFactors) {
             if (unit !== type) {
                 const targetInput = document.getElementById('p-' + unit);
-                if (targetInput) {
-                    targetInput.value = Number((basePsi * pressFactors[unit]).toFixed(6));
-                }
+                if (targetInput) targetInput.value = Number((basePsi * pressFactors[unit]).toFixed(6));
             }
         }
     }
 
-    /* ---------------- 힘 단위 변환 엔진 ---------------- */
-    const forceTabFactors = {
-        kgf: 1,
-        gf: 1000,
-        n: 9.80665,
-        kn: 0.00980665,
-        lbf: 2.204623
-    };
+    /* ---------------- 힘 단위 변환 엔진 (버그 완벽 수정) ---------------- */
+    const forceTabFactors = { kgf: 1, gf: 1000, n: 9.80665, kn: 0.00980665, lbf: 2.204623 };
 
     function convertForceTab(type) {
         const valStr = document.getElementById('f-' + type).value;
         
-        if (valStr === '') {
+        // 사용자가 값을 비웠을 때 모든 칸 자동 클리어 
+        if (valStr.trim() === '') {
             for (let unit in forceTabFactors) {
                 if (unit !== type) {
                     const targetInput = document.getElementById('f-' + unit);
@@ -841,13 +891,10 @@
         if (isNaN(val)) return;
 
         const baseKgf = val / forceTabFactors[type];
-        
         for (let unit in forceTabFactors) {
             if (unit !== type) {
                 const targetInput = document.getElementById('f-' + unit);
-                if (targetInput) {
-                    targetInput.value = Number((baseKgf * forceTabFactors[unit]).toFixed(6));
-                }
+                if (targetInput) targetInput.value = Number((baseKgf * forceTabFactors[unit]).toFixed(6));
             }
         }
     }
@@ -856,6 +903,7 @@
     window.onload = function() {
         initForce();
         calcHB(1);
+        initTableHighlight();
     };
 </script>
 </body>
