@@ -26,7 +26,7 @@
         .creator-tag { color: #64748b; font-size: 0.85rem; font-weight: 600; display: block; }
         .version-tag { color: #adb5bd; font-size: 0.75rem; font-weight: normal; margin-top: 4px; display: block; }
         
-        /* 💡 탭 내비게이션 스타일 (산뜻한 버튼형 개편) */
+        /* 탭 내비게이션 스타일 */
         .tab-bar { 
             display: flex; 
             flex-wrap: wrap; 
@@ -34,7 +34,7 @@
             margin-bottom: 20px; 
         }
         .tab-btn { 
-            flex: 1 1 calc(33.333% - 8px); /* 한 줄에 3개씩 배치 */
+            flex: 1 1 calc(33.333% - 8px); 
             padding: 12px 6px; 
             background: #ffffff; 
             border: 1px solid #cbd5e1; 
@@ -128,24 +128,19 @@
         .relation-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 0.85rem; line-height: 1.5; color: #334155; }
         .relation-card strong { color: var(--accent); font-weight: 700; }
 
-        /* 💡 정반 규격 테이블 및 하이라이트 효과 */
+        /* 정반 규격 테이블 스타일 */
         .ref-table-wrap { overflow-x: auto; margin-top: 15px; background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; }
-        .ref-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; white-space: nowrap; text-align: center; cursor: pointer; }
+        .ref-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; white-space: nowrap; text-align: center; }
         .ref-table th { background: #f1f5f9; color: #334155; padding: 10px 4px; border: 1px solid #cbd5e1; font-weight: 700; }
-        .ref-table td { padding: 8px 4px; border: 1px solid #e2e8f0; color: #475569; transition: all 0.15s ease; }
+        .ref-table td { padding: 8px 4px; border: 1px solid #e2e8f0; color: #475569; }
         .ref-table tbody tr:nth-child(even) { background: #f8fafc; }
-        .ref-table tbody tr:hover td { background-color: #f1f5f9; }
-        
-        /* 선택된 행 뚜렷한 강조 디자인 */
-        .ref-table tbody tr.selected-row td {
-            background-color: #fef9c3 !important; /* 뚜렷한 연노랑 배경 */
-            color: #0369a1 !important; /* 진한 파란 텍스트 */
-            font-weight: 800 !important;
-            border-top: 2px solid #38bdf8 !important;
-            border-bottom: 2px solid #38bdf8 !important;
+        .ref-table tbody tr:hover { background: #f1f5f9; }
+
+        /* 세로 메뉴 구분선 효과 (강조) */
+        .ref-table th.col-divider, 
+        .ref-table td.col-divider {
+            border-right: 2px solid #64748b !important;
         }
-        .ref-table tbody tr.selected-row td:first-child { border-left: 2px solid #38bdf8 !important; }
-        .ref-table tbody tr.selected-row td:last-child { border-right: 2px solid #38bdf8 !important; }
         
         /* 다이어그램 영역 */
         .diagram-box { border: 1px solid #e2e8f0; padding: 20px; text-align: center; margin: 15px 0; border-radius: 10px; background: #f8fafc; }
@@ -393,44 +388,43 @@
                 <table class="ref-table">
                     <thead>
                         <tr>
-                            <th rowspan="2">구분</th>
-                            <th rowspan="2">정반 SIZE<br>(mm)</th>
-                            <th colspan="3">발길이 (mm)</th>
-                            <th colspan="3">측정횟수</th>
+                            <th rowspan="2" class="col-divider">정반 SIZE<br>(mm)</th>
+                            <th colspan="3" class="col-divider">발길이 (mm)</th>
+                            <th colspan="3" class="col-divider">측정횟수</th>
                             <th colspan="3">시작지점 (mm)</th>
                         </tr>
                         <tr>
-                            <th>가로</th><th>세로</th><th>대각선</th>
-                            <th>가로</th><th>세로</th><th>대각선</th>
+                            <th>가로</th><th>세로</th><th class="col-divider">대각선</th>
+                            <th>가로</th><th>세로</th><th class="col-divider">대각선</th>
                             <th>가로</th><th>세로</th><th>대각선</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>1</td><td>300 × 300</td><td>60</td><td>60</td><td>57</td><td>4</td><td>4</td><td>6</td><td>30</td><td>30</td><td>42</td></tr>
-                        <tr><td>2</td><td>450 × 300</td><td>64</td><td>64</td><td>58</td><td>6</td><td>4</td><td>8</td><td>33</td><td>22</td><td>40</td></tr>
-                        <tr><td>3</td><td>500 × 500</td><td>110</td><td>110</td><td>104</td><td>4</td><td>4</td><td>6</td><td>30</td><td>30</td><td>42</td></tr>
-                        <tr><td>4</td><td>600 × 450</td><td>140</td><td>100</td><td>115</td><td>4</td><td>4</td><td>6</td><td>20</td><td>25</td><td>32</td></tr>
-                        <tr><td>5</td><td>600 × 600</td><td>140</td><td>140</td><td>132</td><td>4</td><td>4</td><td>6</td><td>20</td><td>20</td><td>28</td></tr>
-                        <tr><td>6</td><td>750 × 500</td><td>116</td><td>116</td><td>105</td><td>6</td><td>4</td><td>8</td><td>27</td><td>18</td><td>32</td></tr>
-                        <tr><td>7</td><td>900 × 600</td><td>140</td><td>140</td><td>126</td><td>6</td><td>4</td><td>8</td><td>30</td><td>20</td><td>36</td></tr>
-                        <tr><td>8</td><td>1 000 × 750</td><td>120</td><td>120</td><td>120</td><td>8</td><td>6</td><td>10</td><td>20</td><td>15</td><td>25</td></tr>
-                        <tr><td>9</td><td>1 000 × 900</td><td>120</td><td>140</td><td>128</td><td>8</td><td>6</td><td>10</td><td>20</td><td>30</td><td>36</td></tr>
-                        <tr><td>10</td><td>1 000 × 1 000</td><td>120</td><td>120</td><td>136</td><td>8</td><td>8</td><td>10</td><td>20</td><td>20</td><td>28</td></tr>
-                        <tr><td>11</td><td>1 200 × 900</td><td>140</td><td>140</td><td>140</td><td>8</td><td>6</td><td>10</td><td>40</td><td>30</td><td>50</td></tr>
-                        <tr><td>12</td><td>1 200 × 1 000</td><td>140</td><td>160</td><td>148</td><td>8</td><td>6</td><td>10</td><td>40</td><td>20</td><td>45</td></tr>
-                        <tr><td>13</td><td>1 500 × 900</td><td>180</td><td>140</td><td>167</td><td>8</td><td>6</td><td>10</td><td>30</td><td>30</td><td>42</td></tr>
-                        <tr><td>14</td><td>1 500 × 1 000</td><td>180</td><td>160</td><td>173</td><td>8</td><td>6</td><td>10</td><td>30</td><td>20</td><td>36</td></tr>
-                        <tr><td>15</td><td>1 500 × 1 200</td><td>180</td><td>190</td><td>184</td><td>8</td><td>6</td><td>10</td><td>30</td><td>30</td><td>42</td></tr>
-                        <tr><td>16</td><td>1 500 × 1 500</td><td>180</td><td>180</td><td>170</td><td>8</td><td>8</td><td>12</td><td>30</td><td>30</td><td>42</td></tr>
-                        <tr><td>17</td><td>1 700 × 1 000</td><td>200</td><td>160</td><td>187</td><td>8</td><td>6</td><td>10</td><td>50</td><td>20</td><td>54</td></tr>
-                        <tr><td>18</td><td>2 000 × 1 000</td><td>160</td><td>160</td><td>153</td><td>12</td><td>6</td><td>14</td><td>40</td><td>20</td><td>45</td></tr>
-                        <tr><td>20</td><td>2 000 × 1 500</td><td>160</td><td>180</td><td>171</td><td>12</td><td>8</td><td>14</td><td>40</td><td>30</td><td>50</td></tr>
-                        <tr><td>21</td><td>2 000 × 2 000</td><td>160</td><td>160</td><td>170</td><td>12</td><td>12</td><td>16</td><td>40</td><td>40</td><td>57</td></tr>
-                        <tr><td>22</td><td>2 400 × 1 200</td><td>190</td><td>190</td><td>159</td><td>12</td><td>6</td><td>16</td><td>60</td><td>30</td><td>67</td></tr>
-                        <tr><td>23</td><td>2 500 × 2 500</td><td>200</td><td>200</td><td>189</td><td>12</td><td>12</td><td>18</td><td>50</td><td>50</td><td>71</td></tr>
-                        <tr><td>24</td><td>3 000 × 1 500</td><td>200</td><td>180</td><td>197</td><td>14</td><td>8</td><td>16</td><td>100</td><td>30</td><td>104</td></tr>
-                        <tr><td>25</td><td>3 000 × 2 000</td><td>200</td><td>160</td><td>189</td><td>14</td><td>12</td><td>18</td><td>100</td><td>40</td><td>108</td></tr>
-                        <tr><td>26</td><td>3 000 × 3 000</td><td>200</td><td>200</td><td>198</td><td>14</td><td>14</td><td>20</td><td>100</td><td>100</td><td>141</td></tr>
+                        <tr><td class="col-divider">300 × 300</td><td>60</td><td>60</td><td class="col-divider">57</td><td>4</td><td>4</td><td class="col-divider">6</td><td>30</td><td>30</td><td>42</td></tr>
+                        <tr><td class="col-divider">450 × 300</td><td>64</td><td>64</td><td class="col-divider">58</td><td>6</td><td>4</td><td class="col-divider">8</td><td>33</td><td>22</td><td>40</td></tr>
+                        <tr><td class="col-divider">500 × 500</td><td>110</td><td>110</td><td class="col-divider">104</td><td>4</td><td>4</td><td class="col-divider">6</td><td>30</td><td>30</td><td>42</td></tr>
+                        <tr><td class="col-divider">600 × 450</td><td>140</td><td>100</td><td class="col-divider">115</td><td>4</td><td>4</td><td class="col-divider">6</td><td>20</td><td>25</td><td>32</td></tr>
+                        <tr><td class="col-divider">600 × 600</td><td>140</td><td>140</td><td class="col-divider">132</td><td>4</td><td>4</td><td class="col-divider">6</td><td>20</td><td>20</td><td>28</td></tr>
+                        <tr><td class="col-divider">750 × 500</td><td>116</td><td>116</td><td class="col-divider">105</td><td>6</td><td>4</td><td class="col-divider">8</td><td>27</td><td>18</td><td>32</td></tr>
+                        <tr><td class="col-divider">900 × 600</td><td>140</td><td>140</td><td class="col-divider">126</td><td>6</td><td>4</td><td class="col-divider">8</td><td>30</td><td>20</td><td>36</td></tr>
+                        <tr><td class="col-divider">1 000 × 750</td><td>120</td><td>120</td><td class="col-divider">120</td><td>8</td><td>6</td><td class="col-divider">10</td><td>20</td><td>15</td><td>25</td></tr>
+                        <tr><td class="col-divider">1 000 × 900</td><td>120</td><td>140</td><td class="col-divider">128</td><td>8</td><td>6</td><td class="col-divider">10</td><td>20</td><td>30</td><td>36</td></tr>
+                        <tr><td class="col-divider">1 000 × 1 000</td><td>120</td><td>120</td><td class="col-divider">136</td><td>8</td><td>8</td><td class="col-divider">10</td><td>20</td><td>20</td><td>28</td></tr>
+                        <tr><td class="col-divider">1 200 × 900</td><td>140</td><td>140</td><td class="col-divider">140</td><td>8</td><td>6</td><td class="col-divider">10</td><td>40</td><td>30</td><td>50</td></tr>
+                        <tr><td class="col-divider">1 200 × 1 000</td><td>140</td><td>160</td><td class="col-divider">148</td><td>8</td><td>6</td><td class="col-divider">10</td><td>40</td><td>20</td><td>45</td></tr>
+                        <tr><td class="col-divider">1 500 × 900</td><td>180</td><td>140</td><td class="col-divider">167</td><td>8</td><td>6</td><td class="col-divider">10</td><td>30</td><td>30</td><td>42</td></tr>
+                        <tr><td class="col-divider">1 500 × 1 000</td><td>180</td><td>160</td><td class="col-divider">173</td><td>8</td><td>6</td><td class="col-divider">10</td><td>30</td><td>20</td><td>36</td></tr>
+                        <tr><td class="col-divider">1 500 × 1 200</td><td>180</td><td>190</td><td class="col-divider">184</td><td>8</td><td>6</td><td class="col-divider">10</td><td>30</td><td>30</td><td>42</td></tr>
+                        <tr><td class="col-divider">1 500 × 1 500</td><td>180</td><td>180</td><td class="col-divider">170</td><td>8</td><td>8</td><td class="col-divider">12</td><td>30</td><td>30</td><td>42</td></tr>
+                        <tr><td class="col-divider">1 700 × 1 000</td><td>200</td><td>160</td><td class="col-divider">187</td><td>8</td><td>6</td><td class="col-divider">10</td><td>50</td><td>20</td><td>54</td></tr>
+                        <tr><td class="col-divider">2 000 × 1 000</td><td>160</td><td>160</td><td class="col-divider">153</td><td>12</td><td>6</td><td class="col-divider">14</td><td>40</td><td>20</td><td>45</td></tr>
+                        <tr><td class="col-divider">2 000 × 1 500</td><td>160</td><td>180</td><td class="col-divider">171</td><td>12</td><td>8</td><td class="col-divider">14</td><td>40</td><td>30</td><td>50</td></tr>
+                        <tr><td class="col-divider">2 000 × 2 000</td><td>160</td><td>160</td><td class="col-divider">170</td><td>12</td><td>12</td><td class="col-divider">16</td><td>40</td><td>40</td><td>57</td></tr>
+                        <tr><td class="col-divider">2 400 × 1 200</td><td>190</td><td>190</td><td class="col-divider">159</td><td>12</td><td>6</td><td class="col-divider">16</td><td>60</td><td>30</td><td>67</td></tr>
+                        <tr><td class="col-divider">2 500 × 2 500</td><td>200</td><td>200</td><td class="col-divider">189</td><td>12</td><td>12</td><td class="col-divider">18</td><td>50</td><td>50</td><td>71</td></tr>
+                        <tr><td class="col-divider">3 000 × 1 500</td><td>200</td><td>180</td><td class="col-divider">197</td><td>14</td><td>8</td><td class="col-divider">16</td><td>100</td><td>30</td><td>104</td></tr>
+                        <tr><td class="col-divider">3 000 × 2 000</td><td>200</td><td>160</td><td class="col-divider">189</td><td>14</td><td>12</td><td class="col-divider">18</td><td>100</td><td>40</td><td>108</td></tr>
+                        <tr><td class="col-divider">3 000 × 3 000</td><td>200</td><td>200</td><td class="col-divider">198</td><td>14</td><td>14</td><td class="col-divider">20</td><td>100</td><td>100</td><td>141</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -465,7 +459,7 @@
                 <table class="ref-table">
                     <thead>
                         <tr>
-                            <th rowspan="2">Size<br>(mm)</th>
+                            <th rowspan="2" class="col-divider">Size<br>(mm)</th>
                             <th colspan="3">Flatness Accuracy</th>
                         </tr>
                         <tr>
@@ -473,24 +467,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>250×250</td><td>±2</td><td>±4</td><td>±8</td></tr>
-                        <tr><td>300×300</td><td>±3</td><td>±5</td><td>±10</td></tr>
-                        <tr><td>430×300</td><td>±3</td><td>±5</td><td>±10</td></tr>
-                        <tr><td>400×400</td><td>±3</td><td>±6</td><td>±12</td></tr>
-                        <tr><td>500×500</td><td>±4</td><td>±8</td><td>±16</td></tr>
-                        <tr><td>600×450</td><td>±4</td><td>±8</td><td>±16</td></tr>
-                        <tr><td>600×600</td><td>±5</td><td>±9</td><td>±18</td></tr>
-                        <tr><td>750×500</td><td>±5</td><td>±9</td><td>±18</td></tr>
-                        <tr><td>900×600</td><td>±6</td><td>±10</td><td>±20</td></tr>
-                        <tr><td>1000×750</td><td>±6</td><td>±12</td><td>±24</td></tr>
-                        <tr><td>1000×1000</td><td>±7</td><td>±15</td><td>±30</td></tr>
-                        <tr><td>1200×900</td><td>±7</td><td>±15</td><td>±30</td></tr>
-                        <tr><td>1500×1000</td><td>±8</td><td>±19</td><td>±38</td></tr>
-                        <tr><td>2000×1000</td><td>±9</td><td>±23</td><td>±46</td></tr>
-                        <tr><td>2000×1500</td><td>±10</td><td>±25</td><td>±50</td></tr>
-                        <tr><td>2400×1200</td><td>±11</td><td>±27</td><td>±54</td></tr>
-                        <tr><td>3000×1500</td><td>±12</td><td>±30</td><td>±60</td></tr>
-                        <tr><td>3000×2000</td><td>±15</td><td>±30</td><td>±60</td></tr>
+                        <tr><td class="col-divider">250×250</td><td>±2</td><td>±4</td><td>±8</td></tr>
+                        <tr><td class="col-divider">300×300</td><td>±3</td><td>±5</td><td>±10</td></tr>
+                        <tr><td class="col-divider">430×300</td><td>±3</td><td>±5</td><td>±10</td></tr>
+                        <tr><td class="col-divider">400×400</td><td>±3</td><td>±6</td><td>±12</td></tr>
+                        <tr><td class="col-divider">500×500</td><td>±4</td><td>±8</td><td>±16</td></tr>
+                        <tr><td class="col-divider">600×450</td><td>±4</td><td>±8</td><td>±16</td></tr>
+                        <tr><td class="col-divider">600×600</td><td>±5</td><td>±9</td><td>±18</td></tr>
+                        <tr><td class="col-divider">750×500</td><td>±5</td><td>±9</td><td>±18</td></tr>
+                        <tr><td class="col-divider">900×600</td><td>±6</td><td>±10</td><td>±20</td></tr>
+                        <tr><td class="col-divider">1000×750</td><td>±6</td><td>±12</td><td>±24</td></tr>
+                        <tr><td class="col-divider">1000×1000</td><td>±7</td><td>±15</td><td>±30</td></tr>
+                        <tr><td class="col-divider">1200×900</td><td>±7</td><td>±15</td><td>±30</td></tr>
+                        <tr><td class="col-divider">1500×1000</td><td>±8</td><td>±19</td><td>±38</td></tr>
+                        <tr><td class="col-divider">2000×1000</td><td>±9</td><td>±23</td><td>±46</td></tr>
+                        <tr><td class="col-divider">2000×1500</td><td>±10</td><td>±25</td><td>±50</td></tr>
+                        <tr><td class="col-divider">2400×1200</td><td>±11</td><td>±27</td><td>±54</td></tr>
+                        <tr><td class="col-divider">3000×1500</td><td>±12</td><td>±30</td><td>±60</td></tr>
+                        <tr><td class="col-divider">3000×2000</td><td>±15</td><td>±30</td><td>±60</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -506,22 +500,6 @@
         
         document.getElementById(tabId).classList.add('active');
         event.currentTarget.classList.add('active');
-    }
-
-    /* ---------------- 테이블 행(Row) 하이라이트 제어 (정밀 정반용) ---------------- */
-    function initTableHighlight() {
-        const tables = document.querySelectorAll('.ref-table');
-        tables.forEach(table => {
-            const rows = table.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                row.addEventListener('click', function() {
-                    // 동일한 테이블 내의 다른 행 강조 제거
-                    rows.forEach(r => r.classList.remove('selected-row'));
-                    // 클릭한 행 강조 적용
-                    this.classList.add('selected-row');
-                });
-            });
-        });
     }
 
     /* ---------------- 힘 교정 엔진 로직 ---------------- */
@@ -792,7 +770,7 @@
         }
     }
 
-    /* ---------------- 압력 단위 변환 엔진 (다이어트 적용 + UX버그 수정) ---------------- */
+    /* ---------------- 압력 단위 변환 엔진 ---------------- */
     const pressFactors = {
         psi: 1,
         pa: 6894.75672,
@@ -812,7 +790,6 @@
     function convertPressure(type) {
         const valStr = document.getElementById('p-' + type).value;
         
-        // 입력 칸이 비워지면 나머지 모든 칸도 비우기 (버그 수정)
         if (valStr === '') {
             for (let unit in pressFactors) {
                 if (unit !== type) {
@@ -838,7 +815,7 @@
         }
     }
 
-    /* ---------------- 힘 단위 변환 엔진 (다이어트 적용 + UX버그 수정) ---------------- */
+    /* ---------------- 힘 단위 변환 엔진 ---------------- */
     const forceTabFactors = {
         kgf: 1,
         gf: 1000,
@@ -850,7 +827,6 @@
     function convertForceTab(type) {
         const valStr = document.getElementById('f-' + type).value;
         
-        // 입력 칸이 비워지면 나머지 모든 칸도 비우기 (버그 수정)
         if (valStr === '') {
             for (let unit in forceTabFactors) {
                 if (unit !== type) {
@@ -880,7 +856,6 @@
     window.onload = function() {
         initForce();
         calcHB(1);
-        initTableHighlight();
     };
 </script>
 </body>
