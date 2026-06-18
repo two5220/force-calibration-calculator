@@ -3,91 +3,466 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Force Calibration Calculator</title>
+    <title>현장 교정 마스터</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        body { font-family: -apple-system, sans-serif; padding: 10px; background-color: #f8f9fa; color: #333; margin: 0; }
-        .container { max-width: 100%; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .header-area { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
-        h2 { color: #007bff; font-size: 1.25rem; margin: 0; }
-        .creator-tag { color: #adb5bd; font-size: 0.8rem; font-weight: bold; margin-top: 5px; display: block; }
+        :root {
+            --primary: #007bff;
+            --secondary: #1e293b;
+            --accent: #2563eb;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --border: #dee2e6;
+            --text: #333333;
+            --text-light: #94a3b8;
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 10px; background-color: var(--bg); color: var(--text); margin: 0; }
+        .container { max-width: 100%; max-width: 540px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); box-sizing: border-box; }
+        
+        .header-area { text-align: center; margin-bottom: 15px; border-bottom: 2px solid var(--primary); padding-bottom: 15px; }
+        h2 { color: var(--primary); font-size: 1.35rem; font-weight: 800; margin: 0 0 5px 0; letter-spacing: -0.5px; }
+        .creator-tag { color: #64748b; font-size: 0.85rem; font-weight: 600; display: block; }
+        .version-tag { color: #adb5bd; font-size: 0.75rem; font-weight: normal; margin-top: 2px; display: block; }
+        
+        /* 탭 내비게이션 스타일 */
+        .tab-bar { display: flex; flex-wrap: wrap; background-color: #f1f5f9; border-radius: 8px; margin-bottom: 15px; overflow: hidden; border: 1px solid #e2e8f0; gap: 1px; }
+        .tab-btn { flex: 1 1 30%; padding: 10px 4px; background: none; border: none; font-size: 0.82rem; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s ease; text-align: center; }
+        .tab-btn.active { background-color: var(--card-bg); color: var(--primary); border-bottom: 3px solid var(--primary); font-weight: bold; }
+        
+        /* 콘텐츠 제어 */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .section { margin-bottom: 15px; padding: 12px; border: 1px solid #e9ecef; border-radius: 10px; background: #fff; }
         .section-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 5px; }
         .btn-group { display: flex; gap: 5px; }
         input, select { width: 100%; height: 35px; padding: 5px 8px; border: 1px solid #ced4da; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
+        
         .table-wrapper { overflow-x: auto; margin-top: 5px; }
         table { width: 100%; border-collapse: collapse; min-width: 280px; }
         th, td { border: 1px solid #dee2e6; padding: 6px 3px; text-align: center; font-size: 0.82rem; }
         th { background: #f1f3f5; }
+        
         .btn-calc { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .btn-share { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 10px; display: none; }
+        .btn-share { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 10px; display: none; }
         .btn-reset { padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.72rem; white-space: nowrap; }
-        .btn-toggle { padding: 4px 8px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.72rem; white-space: nowrap; }
+        .btn-toggle { padding: 4px 8px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.72rem; white-space: nowrap; }
+        
         #capture-area { background: white; padding: 10px; border-radius: 8px; }
-        .result-item { padding: 12px; margin-bottom: 8px; border-left: 5px solid #28a745; background: #f4faf6; border-radius: 6px; font-size: 0.88rem; line-height: 1.5; }
+        .result-item { padding: 12px; margin-bottom: 8px; border-left: 5px solid #28a745; background: #f4faf6; border-radius: 6px; font-size: 0.88rem; line-height: 1.5; text-align: left; }
         .error-text { font-weight: bold; font-size: 1.1rem; }
+        
         .info-section { display: none; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ced4da; }
         .info-group { margin-bottom: 8px; }
-        .info-group label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 3px; }
-        .conv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; }
-        .conv-box label { font-size: 0.7rem; display: block; margin-bottom: 2px; color: #666; }
+        .info-group label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 3px; text-align: left; }
+        
+        /* 단위 변환기 시각화 그리드 */
+        .conv-list-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
+        .conv-row-item { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding-bottom: 6px; }
+        .conv-row-item label { font-size: 0.88rem; color: #475569; font-weight: 600; width: 45%; text-align: left; }
+        .conv-row-item input { width: 55%; text-align: right; font-weight: 600; font-size: 0.95rem; height: 34px; border: 1px solid #cbd5e1; background: #f8fafc; transition: all 0.2s; }
+        .conv-row-item input:focus { background: #ffffff; border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px rgba(0,123,255,0.1); }
+
+        /* 공용 스타일 */
+        .info-badge-panel { background-color: #f1f5f9; padding: 12px 16px; border-radius: 8px; margin-bottom: 15px; font-size: 0.85rem; display: flex; justify-content: space-around; border-left: 4px solid var(--primary); }
+        .info-badge-panel span { font-weight: 600; }
+        
+        .calc-row { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .label-box { width: 90px; text-align: left; }
+        .label-title { font-size: 0.88rem; font-weight: 700; color: var(--secondary); }
+        .label-sub { font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+        
+        .custom-spinner { display: flex; align-items: center; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background-color: #fafafa; height: 38px; }
+        .spin-btn { width: 35px; height: 100%; background-color: #f1f5f9; border: none; font-size: 1.1rem; font-weight: bold; color: var(--secondary); cursor: pointer; }
+        .input-container { position: relative; background: #fff; height: 100%; }
+        .input-container input { width: 80px; height: 100%; border: none; padding: 0 28px 0 8px; font-size: 0.95rem; font-weight: 600; text-align: right; outline: none; }
+        .input-container input::-webkit-outer-spin-button, .input-container input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .input-container input[type=number] { -moz-appearance: textfield; }
+        .input-container .unit-label { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; color: #64748b; font-weight: 500; pointer-events: none; }
+        
+        .output-box { width: 100px; text-align: right; }
+        .output-val { font-size: 1.25rem; font-weight: 800; color: var(--accent); }
+        .output-unit { font-size: 0.72rem; color: #94a3b8; display: block; }
+        .status-message { background-color: #eff6ff; color: var(--accent); padding: 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; text-align: center; margin-top: 15px; border: 1px dashed #bfdbfe; }
+        
+        /* 가이드 스타일 */
+        .guide-section { text-align: left; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .guide-section h3 { font-size: 0.95rem; color: var(--secondary); margin-top: 0; border-left: 4px solid var(--primary); padding-left: 8px; margin-bottom: 12px; }
+        .guide-section p { font-size: 0.85rem; line-height: 1.6; color: #475569; margin: 0 0 15px 0; }
+        .relation-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 0.82rem; line-height: 1.5; color: #334155; }
+        .relation-card strong { color: var(--accent); }
+
+        /* 정반 규격 테이블 스타일 */
+        .ref-table-wrap { overflow-x: auto; margin-top: 15px; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .ref-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; white-space: nowrap; text-align: center; }
+        .ref-table th { background: #f1f5f9; color: #334155; padding: 8px 4px; border: 1px solid #cbd5e1; font-weight: bold; }
+        .ref-table td { padding: 6px 4px; border: 1px solid #e2e8f0; color: #475569; }
+        .ref-table tr:nth-child(even) { background: #f8fafc; }
+        .ref-table tr:hover { background: #f1f5f9; }
+        
+        /* 다이어그램 영역 */
+        .diagram-box { border: 1px solid #e2e8f0; padding: 20px; text-align: center; margin: 15px 0; border-radius: 8px; background: #f8fafc; }
+        .diagram-box svg { max-width: 100%; height: auto; }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header-area">
-        <h2>FORCE CALIBRATION CALCULATOR</h2>
-        <span class="creator-tag">v26.02.20 | Created by D</span>
+        <h2>현장 교정 마스터</h2>
+        <span class="creator-tag">당신의 칼퇴를 위하여 by D</span>
+        <span class="version-tag">v26.06.17</span>
     </div>
 
-    <div class="section">
-        <div class="section-title">
-            <span>1단계 기준기 데이터 설정</span>
-            <div class="btn-group">
-                <button id="toggle-row-btn" class="btn-toggle" onclick="toggleRows()">10칸</button>
-                <button class="btn-reset" onclick="resetTable('cal-table')">초기화</button>
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('force')">힘 교정</button>
+        <button class="tab-btn" onclick="switchTab('brinell')">브리넬 경도 환산</button>
+        <button class="tab-btn" onclick="switchTab('dewpoint')">노점 온도</button>
+        <button class="tab-btn" onclick="switchTab('v-pressure')">압력 변환</button>
+        <button class="tab-btn" onclick="switchTab('v-force')">힘 변환</button>
+        <button class="tab-btn" onclick="switchTab('surface-plate')">정밀 정반</button>
+    </div>
+
+    <div id="force" class="tab-content active">
+        <div class="section">
+            <div class="section-title">
+                <span>1단계 기준기 데이터 설정</span>
+                <div class="btn-group">
+                    <button id="toggle-row-btn" class="btn-toggle" onclick="toggleRows()">10칸</button>
+                    <button class="btn-reset" onclick="resetTable('cal-table')">초기화</button>
+                </div>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <select id="load-cell-db" onchange="applyLoadCell()">
+                    <option value="">-- 기준 장비 선택 (DB 로드) --</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 8px;"><select id="ref-unit-sel"><option value="kn">kN (킬로뉴턴)</option><option value="n">N (뉴턴)</option></select></div>
+            <div class="table-wrapper">
+                <table id="cal-main-table"><thead id="cal-thead"></thead><tbody id="cal-table"></tbody></table>
             </div>
         </div>
-        <div style="margin-bottom: 10px;">
-            <select id="load-cell-db" onchange="applyLoadCell()">
-                <option value="">-- 기준 장비 선택 (DB 로드) --</option>
-            </select>
+
+        <div class="section">
+            <div class="section-title"><span>2단계 측정값 입력</span><button class="btn-reset" onclick="resetTable('input-rows')">초기화</button></div>
+            <div style="margin-bottom: 10px;"><select id="global-unit-sel"><option value="kgf">kgf</option><option value="gf">gf</option><option value="kn">kN</option><option value="n">N</option><option value="lbf">lbf (ibf)</option></select></div>
+            <table><thead><tr><th width="30">#</th><th>측정값 (Input)</th><th>기준기 상수 (Ref)</th></tr></thead><tbody id="input-rows"></tbody></table>
+            <button class="btn-calc" onclick="calculateAll()">계산</button>
         </div>
-        <div style="margin-bottom: 8px;"><select id="ref-unit-sel"><option value="kn">kN (킬로뉴턴)</option><option value="n">N (뉴턴)</option></select></div>
-        <div class="table-wrapper">
-            <table id="cal-main-table"><thead id="cal-thead"></thead><tbody id="cal-table"></tbody></table>
+
+        <div id="capture-area">
+            <div id="result-area"></div>
+            <div id="info-section" class="info-section">
+                <div class="info-group"><label>업체명</label><input type="text" id="company-name" placeholder="입력하세요"></div>
+                <div class="info-group"><label>제조사</label><input type="text" id="manufacturer" placeholder="입력하세요"></div>
+                <div class="info-group"><label>S/N</label><input type="text" id="serial-number" placeholder="입력하세요"></div>
+            </div>
+        </div>
+        <button id="share-btn" class="btn-share" onclick="shareAsImage()">결과 공유 (이미지로 저장)</button>
+    </div>
+
+    <div id="brinell" class="tab-content">
+        <div class="info-badge-panel">
+            <div>하중(P): <span>3000 kgf (29.421kN)</span></div>
+            <div>압자(D): <span>10 mm</span></div>
+        </div>
+
+        <div class="calc-row">
+            <div class="label-box">
+                <div class="label-title">측정점 1</div>
+                <div class="label-sub">Diameter 1</div>
+            </div>
+            <div class="custom-spinner">
+                <button class="spin-btn" onclick="step('d1', -0.01)">-</button>
+                <div class="input-container">
+                    <input type="number" id="d1" value="4.00" step="0.01" min="0.1" max="9.9" oninput="calcHB(1)">
+                    <span class="unit-label">mm</span>
+                </div>
+                <button class="spin-btn" onclick="step('d1', 0.01)">+</button>
+            </div>
+            <div class="output-box">
+                <span class="output-val" id="hb1">228.7</span>
+                <span class="output-unit">HBW 10/300</span>
+            </div>
+        </div>
+
+        <div class="calc-row">
+            <div class="label-box">
+                <div class="label-title">측정점 2</div>
+                <div class="label-sub">Diameter 2</div>
+            </div>
+            <div class="custom-spinner">
+                <button class="spin-btn" onclick="step('d2', -0.01)">-</button>
+                <div class="input-container">
+                    <input type="number" id="d2" value="0.00" step="0.01" min="0.1" max="9.9" oninput="calcHB(2)">
+                    <span class="unit-label">mm</span>
+                </div>
+                <button class="spin-btn" onclick="step('d2', 0.01)">+</button>
+            </div>
+            <div class="output-box">
+                <span class="output-val" id="hb2">-</span>
+                <span class="output-unit">HBW 10/300</span>
+            </div>
+        </div>
+
+        <div class="calc-row">
+            <div class="label-box">
+                <div class="label-title">측정점 3</div>
+                <div class="label-sub">Diameter 3</div>
+            </div>
+            <div class="custom-spinner">
+                <button class="spin-btn" onclick="step('d3', -0.01)">-</button>
+                <div class="input-container">
+                    <input type="number" id="d3" value="0.00" step="0.01" min="0.1" max="9.9" oninput="calcHB(3)">
+                    <span class="unit-label">mm</span>
+                </div>
+                <button class="spin-btn" onclick="step('d3', 0.01)">+</button>
+            </div>
+            <div class="output-box">
+                <span class="output-val" id="hb3">-</span>
+                <span class="output-unit">HBW 10/300</span>
+            </div>
         </div>
     </div>
 
-    <div class="section">
-        <div class="section-title"><span>2단계 측정값 입력</span><button class="btn-reset" onclick="resetTable('input-rows')">초기화</button></div>
-        <div style="margin-bottom: 10px;"><select id="global-unit-sel"><option value="kgf">kgf</option><option value="gf">gf</option><option value="kn">kN</option><option value="n">N</option><option value="lbf">lbf (ibf)</option></select></div>
-        <table><thead><tr><th width="30">#</th><th>측정값 (Input)</th><th>기준기 상수 (Ref)</th></tr></thead><tbody id="input-rows"></tbody></table>
-        <button class="btn-calc" onclick="calculateAll()">계산</button>
-    </div>
+    <div id="dewpoint" class="tab-content">
+        <div class="info-badge-panel" style="border-left-color: #10b981;">
+            <div style="text-align: center;">💡 <strong>3개 중 2가지 변수</strong>를 입력하면 역산 추적합니다.</div>
+        </div>
 
-    <div id="capture-area">
-        <div id="result-area"></div>
-        <div id="info-section" class="info-section">
-            <div class="info-group"><label>업체명</label><input type="text" id="company-name" placeholder="입력하세요"></div>
-            <div class="info-group"><label>제조사</label><input type="text" id="manufacturer" placeholder="입력하세요"></div>
-            <div class="info-group"><label>S/N</label><input type="text" id="serial-number" placeholder="입력하세요"></div>
+        <div class="calc-row">
+            <div class="label-box">
+                <div class="label-title">공기 온도</div>
+                <div class="label-sub">Air Temp (T)</div>
+            </div>
+            <div class="custom-spinner">
+                <button class="spin-btn" onclick="step('dp_t', -0.1)">-</button>
+                <div class="input-container">
+                    <input type="number" id="dp_t" placeholder="입력" step="0.1" oninput="runDewPointCalc()">
+                    <span class="unit-label">°C</span>
+                </div>
+                <button class="spin-btn" onclick="step('dp_t', 0.1)">+</button>
+            </div>
+        </div>
+
+        <div class="calc-row">
+            <div class="label-box">
+                <div class="label-title">상대 습도</div>
+                <div class="label-sub">Humidity (RH)</div>
+            </div>
+            <div class="custom-spinner">
+                <button class="spin-btn" onclick="step('dp_rh', -1)">-</button>
+                <div class="input-container">
+                    <input type="number" id="dp_rh" placeholder="입력" step="1" min="1" max="100" oninput="runDewPointCalc()">
+                    <span class="unit-label">%</span>
+                </div>
+                <button class="spin-btn" onclick="step('dp_rh', 1)">+</button>
+            </div>
+        </div>
+
+        <div class="calc-row">
+            <div class="label-box">
+                <div class="label-title">노점 온도</div>
+                <div class="label-sub">Dew Point (Td)</div>
+            </div>
+            <div class="custom-spinner">
+                <button class="spin-btn" onclick="step('dp_td', -0.1)">-</button>
+                <div class="input-container">
+                    <input type="number" id="dp_td" placeholder="입력" step="0.1" oninput="runDewPointCalc()">
+                    <span class="unit-label">°C</span>
+                </div>
+                <button class="spin-btn" onclick="step('dp_td', 0.1)">+</button>
+            </div>
+        </div>
+
+        <div class="status-message" id="dp_status">수치를 2개 이상 입력해 주세요.</div>
+
+        <div class="guide-section">
+            <h3>🌱 노점 온도(이슬점)란 무엇인가요?</h3>
+            <p>
+                공기 안에는 눈에 보이지 않는 수증기가 포함되어 있습니다. 공기가 머금을 수 있는 최대 수증기의 양(포화수증기량)은 <strong>온도가 높을수록 많아지고, 온도가 낮을수록 줄어듭니다.</strong><br><br>
+                따라서 현재 공기의 온도를 점점 낮추다 보면, 수증기량은 그대로인데 가둘 수 있는 용량이 줄어들어 결국 <strong>상대습도가 100%가 되는 순간</strong>에 도달합니다. 이때부터 공기 중의 수증기가 물방울(결로)로 변해 맺히기 시작하는데, <strong>이슬이 맺히기 시작하는 시점의 온도</strong>를 바로 <strong>'노점 온도(Dew Point)'</strong>라고 합니다.
+            </p>
+
+            <h3 style="margin-top: 25px;">🔄 공기 온도, 상대 습도, 노점 온도의 상관관계</h3>
+            <div class="relation-card">
+                1. <strong>공기 온도 = 노점 온도인 경우</strong><br>
+                현재 공기가 수증기를 한계치까지 꽉 채워 머금고 있다는 뜻입니다. 이때의 <strong>상대습도는 무조건 100%</strong>가 됩니다.
+            </div>
+            <div class="relation-card">
+                2. <strong>공기 온도가 일정할 때, 습도가 올라가면?</strong><br>
+                공기 중에 수증기가 많아지므로, 온도를 아주 조금만 낮춰도 쉽게 이슬이 맺히게 됩니다. 즉, <strong>상대습도가 높을수록 노점 온도도 상승</strong>하여 공기 온도에 가까워집니다.
+            </div>
+            <div class="relation-card">
+                3. <strong>공기 온도와 노점 온도의 격차가 크다면?</strong><br>
+                이슬이 맺히기까지 온도를 한참 낮춰야 한다는 뜻이므로, 현재 공기 상태가 매우 건조하다는 의미입니다. 즉, <strong>두 온도의 차이가 벌어질수록 상대습도는 낮아집니다.</strong>
+            </div>
         </div>
     </div>
-    <button id="share-btn" class="btn-share" onclick="shareAsImage()">결과 공유 (이미지로 저장)</button>
 
-    <div class="section" style="border-style: dashed; background: #fafafa; margin-top: 20px;">
-        <div class="section-title"><span>🔄 단위 변환 계산기</span><button class="btn-reset btn-reset-sub" style="background:#6c757d" onclick="resetConverter()">초기화</button></div>
-        <div class="conv-grid">
-            <div><label>kgf</label><input type="number" id="c-kgf" oninput="convertUnits('kgf')"></div>
-            <div><label>gf</label><input type="number" id="c-gf" oninput="convertUnits('gf')"></div>
-            <div><label>kN</label><input type="number" id="c-kn" oninput="convertUnits('kn')"></div>
-            <div><label>N</label><input type="number" id="c-n" oninput="convertUnits('n')"></div>
+    <div id="v-pressure" class="tab-content">
+        <div class="section">
+            <div class="section-title">
+                <span>⚙️ 압력 변환</span>
+                <button class="btn-reset" style="background:#6c757d" onclick="resetAllFields('press')">초기화</button>
+            </div>
+            <div class="conv-list-grid" id="press">
+                <div class="conv-row-item"><label>Pa</label><input type="number" id="p-pa" oninput="convertPressure('pa')"></div>
+                <div class="conv-row-item"><label>hPa (mbar)</label><input type="number" id="p-hpa" oninput="convertPressure('hpa')"></div>
+                <div class="conv-row-item"><label>kPa (kN/m²)</label><input type="number" id="p-kpa" oninput="convertPressure('kpa')"></div>
+                <div class="conv-row-item"><label>MPa (N/mm²)</label><input type="number" id="p-mpa" oninput="convertPressure('mpa')"></div>
+                <div class="conv-row-item"><label>bar</label><input type="number" id="p-bar" oninput="convertPressure('bar')"></div>
+                <div class="conv-row-item"><label>N/cm²</label><input type="number" id="p-ncm2" oninput="convertPressure('ncm2')"></div>
+                <div class="conv-row-item"><label style="color:var(--accent);">psi (lbf/in²)</label><input type="number" id="p-psi" oninput="convertPressure('psi')"></div>
+                <div class="conv-row-item"><label>kgf/cm²</label><input type="number" id="p-kgfcm2" oninput="convertPressure('kgfcm2')"></div>
+                <div class="conv-row-item"><label>kgf/m²</label><input type="number" id="p-kgfm2" oninput="convertPressure('kgfm2')"></div>
+                <div class="conv-row-item"><label>mmHg (Torr)</label><input type="number" id="p-mmhg" oninput="convertPressure('mmhg')"></div>
+                <div class="conv-row-item"><label>cmHg</label><input type="number" id="p-cmhg" oninput="convertPressure('cmhg')"></div>
+                <div class="conv-row-item"><label>mmH₂O</label><input type="number" id="p-mmh2o" oninput="convertPressure('mmh2o')"></div>
+                <div class="conv-row-item"><label>cmH₂O</label><input type="number" id="p-cmh2o" oninput="convertPressure('cmh2o')"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="v-force" class="tab-content">
+        <div class="section">
+            <div class="section-title">
+                <span>⚙️ 힘 변환</span>
+                <button class="btn-reset" style="background:#6c757d" onclick="resetAllFields('force_conv')">초기화</button>
+            </div>
+            <div class="conv-list-grid" id="force_conv">
+                <div class="conv-row-item"><label>N</label><input type="number" id="f-n" oninput="convertForceTab('n')"></div>
+                <div class="conv-row-item"><label>kN</label><input type="number" id="f-kn" oninput="convertForceTab('kn')"></div>
+                <div class="conv-row-item"><label>gf</label><input type="number" id="f-gf" oninput="convertForceTab('gf')"></div>
+                <div class="conv-row-item"><label style="color:var(--accent);">kgf</label><input type="number" id="f-kgf" oninput="convertForceTab('kgf')"></div>
+                <div class="conv-row-item"><label>lbf</label><input type="number" id="f-lbf" oninput="convertForceTab('lbf')"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="surface-plate" class="tab-content">
+        <div class="section">
+            <div class="section-title"><span>■ 정반 규격별 전기식수준기 발길이 SIZE</span></div>
+            <div class="ref-table-wrap">
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">구분</th>
+                            <th rowspan="2">정반 SIZE<br>(mm)</th>
+                            <th colspan="3">발길이 (mm)</th>
+                            <th colspan="3">측정횟수</th>
+                            <th colspan="3">시작지점 (mm)</th>
+                        </tr>
+                        <tr>
+                            <th>가로</th><th>세로</th><th>대각선</th>
+                            <th>가로</th><th>세로</th><th>대각선</th>
+                            <th>가로</th><th>세로</th><th>대각선</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>300 × 300</td><td>60</td><td>60</td><td>57</td><td>4</td><td>4</td><td>6</td><td>30</td><td>30</td><td>42</td></tr>
+                        <tr><td>2</td><td>450 × 300</td><td>64</td><td>64</td><td>58</td><td>6</td><td>4</td><td>8</td><td>33</td><td>22</td><td>40</td></tr>
+                        <tr><td>3</td><td>500 × 500</td><td>110</td><td>110</td><td>104</td><td>4</td><td>4</td><td>6</td><td>30</td><td>30</td><td>42</td></tr>
+                        <tr><td>4</td><td>600 × 450</td><td>140</td><td>100</td><td>115</td><td>4</td><td>4</td><td>6</td><td>20</td><td>25</td><td>32</td></tr>
+                        <tr><td>5</td><td>600 × 600</td><td>140</td><td>140</td><td>132</td><td>4</td><td>4</td><td>6</td><td>20</td><td>20</td><td>28</td></tr>
+                        <tr><td>6</td><td>750 × 500</td><td>116</td><td>116</td><td>105</td><td>6</td><td>4</td><td>8</td><td>27</td><td>18</td><td>32</td></tr>
+                        <tr><td>7</td><td>900 × 600</td><td>140</td><td>140</td><td>126</td><td>6</td><td>4</td><td>8</td><td>30</td><td>20</td><td>36</td></tr>
+                        <tr><td>8</td><td>1 000 × 750</td><td>120</td><td>120</td><td>120</td><td>8</td><td>6</td><td>10</td><td>20</td><td>15</td><td>25</td></tr>
+                        <tr><td>9</td><td>1 000 × 900</td><td>120</td><td>140</td><td>128</td><td>8</td><td>6</td><td>10</td><td>20</td><td>30</td><td>36</td></tr>
+                        <tr><td>10</td><td>1 000 × 1 000</td><td>120</td><td>120</td><td>136</td><td>8</td><td>8</td><td>10</td><td>20</td><td>20</td><td>28</td></tr>
+                        <tr><td>11</td><td>1 200 × 900</td><td>140</td><td>140</td><td>140</td><td>8</td><td>6</td><td>10</td><td>40</td><td>30</td><td>50</td></tr>
+                        <tr><td>12</td><td>1 200 × 1 000</td><td>140</td><td>160</td><td>148</td><td>8</td><td>6</td><td>10</td><td>40</td><td>20</td><td>45</td></tr>
+                        <tr><td>13</td><td>1 500 × 900</td><td>180</td><td>140</td><td>167</td><td>8</td><td>6</td><td>10</td><td>30</td><td>30</td><td>42</td></tr>
+                        <tr><td>14</td><td>1 500 × 1 000</td><td>180</td><td>160</td><td>173</td><td>8</td><td>6</td><td>10</td><td>30</td><td>20</td><td>36</td></tr>
+                        <tr><td>15</td><td>1 500 × 1 200</td><td>180</td><td>190</td><td>184</td><td>8</td><td>6</td><td>10</td><td>30</td><td>30</td><td>42</td></tr>
+                        <tr><td>16</td><td>1 500 × 1 500</td><td>180</td><td>180</td><td>170</td><td>8</td><td>8</td><td>12</td><td>30</td><td>30</td><td>42</td></tr>
+                        <tr><td>17</td><td>1 700 × 1 000</td><td>200</td><td>160</td><td>187</td><td>8</td><td>6</td><td>10</td><td>50</td><td>20</td><td>54</td></tr>
+                        <tr><td>18</td><td>2 000 × 1 000</td><td>160</td><td>160</td><td>153</td><td>12</td><td>6</td><td>14</td><td>40</td><td>20</td><td>45</td></tr>
+                        <tr><td>20</td><td>2 000 × 1 500</td><td>160</td><td>180</td><td>171</td><td>12</td><td>8</td><td>14</td><td>40</td><td>30</td><td>50</td></tr>
+                        <tr><td>21</td><td>2 000 × 2 000</td><td>160</td><td>160</td><td>170</td><td>12</td><td>12</td><td>16</td><td>40</td><td>40</td><td>57</td></tr>
+                        <tr><td>22</td><td>2 400 × 1 200</td><td>190</td><td>190</td><td>159</td><td>12</td><td>6</td><td>16</td><td>60</td><td>30</td><td>67</td></tr>
+                        <tr><td>23</td><td>2 500 × 2 500</td><td>200</td><td>200</td><td>189</td><td>12</td><td>12</td><td>18</td><td>50</td><td>50</td><td>71</td></tr>
+                        <tr><td>24</td><td>3 000 × 1 500</td><td>200</td><td>180</td><td>197</td><td>14</td><td>8</td><td>16</td><td>100</td><td>30</td><td>104</td></tr>
+                        <tr><td>25</td><td>3 000 × 2 000</td><td>200</td><td>160</td><td>189</td><td>14</td><td>12</td><td>18</td><td>100</td><td>40</td><td>108</td></tr>
+                        <tr><td>26</td><td>3 000 × 3 000</td><td>200</td><td>200</td><td>198</td><td>14</td><td>14</td><td>20</td><td>100</td><td>100</td><td>141</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title"><span>■ 정반 측정선의 위치</span></div>
+            <div class="diagram-box">
+                <svg width="260" height="180" viewBox="0 0 240 180">
+                    <rect x="20" y="20" width="200" height="140" fill="none" stroke="#1e293b" stroke-width="2"/>
+                    <line x1="20" y1="20" x2="220" y2="160" stroke="#1e293b" stroke-width="1.5"/>
+                    <line x1="220" y1="20" x2="20" y2="160" stroke="#1e293b" stroke-width="1.5"/>
+                    <line x1="120" y1="20" x2="120" y2="160" stroke="#1e293b" stroke-width="1.5"/>
+                    <line x1="20" y1="90" x2="220" y2="90" stroke="#1e293b" stroke-width="1.5"/>
+                    <text x="7" y="15" font-size="13" font-weight="bold" fill="#333">A</text>
+                    <text x="115" y="15" font-size="13" font-weight="bold" fill="#333">G</text>
+                    <text x="225" y="15" font-size="13" font-weight="bold" fill="#333">B</text>
+                    <text x="7" y="95" font-size="13" font-weight="bold" fill="#333">F</text>
+                    <text x="105" y="105" font-size="13" font-weight="bold" fill="#333">I</text>
+                    <text x="226" y="95" font-size="13" font-weight="bold" fill="#333">E</text>
+                    <text x="7" y="175" font-size="13" font-weight="bold" fill="#333">D</text>
+                    <text x="115" y="175" font-size="13" font-weight="bold" fill="#333">H</text>
+                    <text x="226" y="175" font-size="13" font-weight="bold" fill="#333">C</text>
+                </svg>
+                <div style="margin-top: 15px; font-weight: bold; font-size: 0.9rem; color: #475569;">Figure 1. The name and location of each measuring line<br><br>명 판</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title"><span>■ 정반의 등급별 정밀도 (Flatness Accuracy)</span></div>
+            <div class="ref-table-wrap">
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Size<br>(mm)</th>
+                            <th colspan="3">Flatness Accuracy</th>
+                        </tr>
+                        <tr>
+                            <th>Grade 0</th><th>Grade 1</th><th>Grade 2</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>250×250</td><td>±2</td><td>±4</td><td>±8</td></tr>
+                        <tr><td>300×300</td><td>±3</td><td>±5</td><td>±10</td></tr>
+                        <tr><td>430×300</td><td>±3</td><td>±5</td><td>±10</td></tr>
+                        <tr><td>400×400</td><td>±3</td><td>±6</td><td>±12</td></tr>
+                        <tr><td>500×500</td><td>±4</td><td>±8</td><td>±16</td></tr>
+                        <tr><td>600×450</td><td>±4</td><td>±8</td><td>±16</td></tr>
+                        <tr><td>600×600</td><td>±5</td><td>±9</td><td>±18</td></tr>
+                        <tr><td>750×500</td><td>±5</td><td>±9</td><td>±18</td></tr>
+                        <tr><td>900×600</td><td>±6</td><td>±10</td><td>±20</td></tr>
+                        <tr><td>1000×750</td><td>±6</td><td>±12</td><td>±24</td></tr>
+                        <tr><td>1000×1000</td><td>±7</td><td>±15</td><td>±30</td></tr>
+                        <tr><td>1200×900</td><td>±7</td><td>±15</td><td>±30</td></tr>
+                        <tr><td>1500×1000</td><td>±8</td><td>±19</td><td>±38</td></tr>
+                        <tr><td>2000×1000</td><td>±9</td><td>±23</td><td>±46</td></tr>
+                        <tr><td>2000×1500</td><td>±10</td><td>±25</td><td>±50</td></tr>
+                        <tr><td>2400×1200</td><td>±11</td><td>±27</td><td>±54</td></tr>
+                        <tr><td>3000×1500</td><td>±12</td><td>±30</td><td>±60</td></tr>
+                        <tr><td>3000×2000</td><td>±15</td><td>±30</td><td>±60</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
+    // 글로벌 내비게이션 탭 제어 기능
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    /* ---------------- 힘 교정 엔진 로직 ---------------- */
     const convFactors = { kn: 1, n: 1000, kgf: 101.9716, gf: 101971.6, lbf: 224.8089 };
     let currentRows = 5;
 
@@ -125,7 +500,7 @@
         {"name":"HBM / 200 kN","sn":"J98727","a":99.89337,"b":0.00004726468,"c":0.000002078305,"cap":200,"calcUnit":"kn"}
     ];
 
-    function init() {
+    function initForce() {
         const dbSelect = document.getElementById('load-cell-db');
         loadCellDB.forEach((item, idx) => {
             const opt = document.createElement('option');
@@ -183,7 +558,9 @@
     }
 
     function resetTable(id) { document.querySelectorAll(`#${id} input`).forEach(i => i.value = ''); }
-    function resetConverter() { document.querySelectorAll('.conv-grid input').forEach(i => i.value = ''); }
+    function resetAllFields(mode) { 
+        document.querySelectorAll(`#${mode} input`).forEach(i => i.value = '');
+    }
 
     function calculateAll() {
         const refUnit = document.getElementById('ref-unit-sel').value;
@@ -193,15 +570,22 @@
         const csT = Array.from(document.querySelectorAll('.const-val')).sort((a,b) => a.dataset.idx - b.dataset.idx).map(i => parseFloat(i.value));
         const unit = document.getElementById('global-unit-sel').value;
         const resA = document.getElementById('result-area');
-        const convFactors = { kn: 1, n: 1000, kgf: 101.9716, gf: 101971.6, lbf: 224.8089 };
+        
         resA.innerHTML = '<span class="section-title" style="margin-top:10px;">결과</span>';
-        const displayUnit = (unit === 'gf' || unit === 'n') ? 'N' : 'kN';
-        const factor = displayUnit === 'N' ? 1000 : 1;
+        
+        const mainDisplayUnit = (refUnit === 'n') ? 'N' : 'kN';
+        const subDisplayUnit = (refUnit === 'n') ? 'gf' : 'kgf';
+        const subFactor = (refUnit === 'n') ? 101971.6 : 101.9716; 
+
         let hasResult = false;
+        
         document.querySelectorAll('#input-rows tr').forEach((row, idx) => {
-            const val = parseFloat(row.querySelector('.comp-val').value);
-            const ref = parseFloat(row.querySelector('.ref-const').value);
-            if (isNaN(val) || isNaN(ref)) return;
+            const valStr = row.querySelector('.comp-val').value.trim();
+            const refStr = row.querySelector('.ref-const').value.trim();
+            
+            if (refStr === '') return;
+            const ref = parseFloat(refStr);
+            
             let bI = -1, mD = Infinity;
             for(let j=0; j<currentRows; j++) {
                 if (isNaN(csT[j])) continue;
@@ -209,20 +593,32 @@
             }
             if (bI === -1 || !knT[bI]) return;
             const slope = csT[bI] / knT[bI];
+
+            if (valStr === '') {
+                const refInMainUnit = ref / slope;
+                const refInSubUnit = refInMainUnit * subFactor;
+                hasResult = true;
+                resA.innerHTML += `<div class="result-item"><strong>측정${idx+1} (상수 매칭)</strong><br><span>기준값: ${refInMainUnit.toFixed(3)} ${mainDisplayUnit} / ${refInSubUnit.toFixed(3)} ${subDisplayUnit} (참고 상수값 ${csT[bI]})</span></div>`;
+                return;
+            }
+
+            const val = parseFloat(valStr);
+            const displayUnit = (unit === 'gf' || unit === 'n') ? 'N' : 'kN';
+            const factor = displayUnit === 'N' ? 1000 : 1;
+            
             const valInDisplayUnit = (val / convFactors[unit]) * factor;
             const refInDisplayUnit = (ref / slope) * factor;
             const errP = ((valInDisplayUnit - refInDisplayUnit) / refInDisplayUnit) * 100;
-            hasResult = true;
-            resA.innerHTML += `<div class="result-item"><strong>측정${idx+1}</strong> | <span class="error-text" style="color:${errP>=0?'#007bff':'#d93025'}">${errP>=0?'+':''}${errP.toFixed(3)}%</span><br><span>측정값 ${valInDisplayUnit.toFixed(3)}${displayUnit} 기준값 ${refInDisplayUnit.toFixed(3)}${displayUnit} (참고 상수값 ${csT[bI]})</span></div>`;
-        });
-        if(hasResult) { document.getElementById('info-section').style.display = 'block'; document.getElementById('share-btn').style.display = 'block'; }
-    }
+            
+            const valInKgfGf = (valInDisplayUnit / factor) * (displayUnit === 'N' ? 101971.6 : 101.9716);
+            const refInKgfGf = (refInDisplayUnit / factor) * (displayUnit === 'N' ? 101971.6 : 101.9716);
+            const altUnit = (displayUnit === 'N') ? 'gf' : 'kgf';
 
-    function convertUnits(type) {
-        const v = parseFloat(document.getElementById('c-' + type).value);
-        if (isNaN(v)) return;
-        const kn = v / convFactors[type];
-        for (let u in convFactors) if (u !== type && document.getElementById('c-' + u)) document.getElementById('c-' + u).value = (kn * convFactors[u]).toFixed(3);
+            hasResult = true;
+            resA.innerHTML += `<div class="result-item"><strong>측정${idx+1}</strong> | <span class="error-text" style="color:${errP>=0?'#007bff':'#d93025'}">${errP>=0?'+':''}${errP.toFixed(3)}%</span><br><span>측정값: ${valInDisplayUnit.toFixed(3)} ${displayUnit} (${valInKgfGf.toFixed(3)} ${altUnit})</span><br><span>기준값: ${refInDisplayUnit.toFixed(3)} ${displayUnit} (${refInKgfGf.toFixed(3)} ${altUnit}) <small style="color:#666;">(참고 상수값 ${csT[bI]})</small></span></div>`;
+        });
+        
+        if(hasResult) { document.getElementById('info-section').style.display = 'block'; document.getElementById('share-btn').style.display = 'block'; }
     }
 
     async function shareAsImage() {
@@ -244,7 +640,157 @@
         link.click();
         tempSpans.forEach(t => { t.input.style.display = 'block'; t.span.remove(); });
     }
-    window.onload = init;
+
+    /* ---------------- 공용 커스텀 스피너 및 증감 엔진 ---------------- */
+    function step(inputId, amount) {
+        const input = document.getElementById(inputId);
+        let currentVal = parseFloat(input.value);
+        if (isNaN(currentVal)) currentVal = 0;
+        
+        let precision = amount.toString().split('.')[1]?.length || 0;
+        let factor = Math.pow(10, Math.max(precision, 2));
+        
+        let newVal = (Math.round(currentVal * factor) + Math.round(amount * factor)) / factor;
+        
+        if (inputId.startsWith('d') && newVal < 0) newVal = 0;
+        if (inputId === 'dp_rh' && newVal > 100) newVal = 100;
+        if (inputId === 'dp_rh' && newVal < 0) newVal = 0;
+
+        input.value = inputId.startsWith('d') ? newVal.toFixed(2) : newVal.toFixed(precision);
+        
+        if(inputId.startsWith('d')) {
+            calcHB(inputId.replace('d', ''));
+        } else {
+            runDewPointCalc();
+        }
+    }
+
+    /* ---------------- 브리넬 경도 연산 엔진 ---------------- */
+    function calcHB(idx) {
+        const P = 3000;
+        const D = 10;
+        const input = document.getElementById('d' + idx);
+        const output = document.getElementById('hb' + idx);
+        let d = parseFloat(input.value);
+
+        if (isNaN(d) || d <= 0 || d >= D) {
+            output.innerText = "-";
+            return;
+        }
+
+        const denominator = Math.PI * D * (D - Math.sqrt(D * D - d * d));
+        const hb = (2 * P) / denominator;
+        output.innerText = hb.toFixed(1);
+    }
+
+    /* ---------------- 노점 온도 추적 연산 엔진 ---------------- */
+    const a = 17.625;
+    const b = 243.04;
+
+    function runDewPointCalc() {
+        const tEl = document.getElementById('dp_t');
+        const rhEl = document.getElementById('dp_rh');
+        const tdEl = document.getElementById('dp_td');
+        const statusEl = document.getElementById('dp_status');
+
+        let t = tEl.value !== "" ? parseFloat(tEl.value) : null;
+        let rh = rhEl.value !== "" ? parseFloat(rhEl.value) : null;
+        let td = tdEl.value !== "" ? parseFloat(tdEl.value) : null;
+
+        let inputs = [t, rh, td].filter(v => v !== null);
+
+        if (t !== null && rh !== null && td === null) {
+            if (rh <= 0 || rh > 100) { statusEl.innerText = "상대습도는 1~100% 사이여야 합니다."; return; }
+            let alpha = ((a * t) / (b + t)) + Math.log(rh / 100);
+            let resultTd = (b * alpha) / (a - alpha);
+            tdEl.placeholder = resultTd.toFixed(1);
+            statusEl.innerHTML = "✅ 입력값 기반 <strong>[노점 온도(Td)]</strong> 도출 완료";
+        } 
+        else if (t !== null && td !== null && rh === null) {
+            if (td > t) { statusEl.innerText = "노점 온도는 공기 온도보다 높을 수 없습니다."; return; }
+            let resultRh = 100 * Math.exp((a * td) / (b + td) - (a * t) / (b + t));
+            if(resultRh > 100) resultRh = 100;
+            rhEl.placeholder = Math.round(resultRh);
+            statusEl.innerHTML = "✅ 입력값 기반 <strong>[상대 습도(RH)]</strong> 도출 완료";
+        } 
+        else if (rh !== null && td !== null && t === null) {
+            if (rh <= 0 || rh > 100) { statusEl.innerText = "상대습도는 1~100% 사이여야 합니다."; return; }
+            let gamma = ((a * td) / (b + td)) - Math.log(rh / 100);
+            let resultT = (b * gamma) / (a - gamma);
+            tEl.placeholder = resultT.toFixed(1);
+            statusEl.innerHTML = "✅ 입력값 기반 <strong>[공기 온도(T)]</strong> 도출 완료";
+        } 
+        else if (inputs.length === 3) {
+            statusEl.innerText = "3개 중 2개만 남기고 한 칸을 비우면 역산이 작동합니다.";
+        } else {
+            if (t === null) tEl.placeholder = "입력";
+            if (rh === null) rhEl.placeholder = "입력";
+            if (td === null) tdEl.placeholder = "입력";
+            statusEl.innerText = "수치를 2개 이상 입력해 주세요. 빈 칸이 자동 계산됩니다.";
+        }
+    }
+
+    /* ---------------- 압력 단위 변환 엔진 (다이어트 적용) ---------------- */
+    const pressFactors = {
+        psi: 1,
+        pa: 6894.75672,
+        hpa: 68.947567,
+        kpa: 6.894757,
+        mpa: 0.006895,
+        bar: 0.068948,
+        ncm2: 0.689476,
+        kgfcm2: 0.070307,
+        kgfm2: 703.069213,
+        mmhg: 51.714928,
+        cmhg: 5.171493,
+        mmh2o: 703.06905,
+        cmh2o: 70.306905
+    };
+
+    function convertPressure(type) {
+        const val = parseFloat(document.getElementById('p-' + type).value);
+        if (isNaN(val)) return;
+        const basePsi = val / pressFactors[type];
+        
+        for (let unit in pressFactors) {
+            if (unit !== type) {
+                const targetInput = document.getElementById('p-' + unit);
+                if (targetInput) {
+                    targetInput.value = Number((basePsi * pressFactors[unit]).toFixed(6));
+                }
+            }
+        }
+    }
+
+    /* ---------------- 힘 단위 변환 엔진 (핵심 5단위) ---------------- */
+    const forceTabFactors = {
+        kgf: 1,
+        gf: 1000,
+        n: 9.80665,
+        kn: 0.00980665,
+        lbf: 2.204623
+    };
+
+    function convertForceTab(type) {
+        const val = parseFloat(document.getElementById('f-' + type).value);
+        if (isNaN(val)) return;
+        const baseKgf = val / forceTabFactors[type];
+        
+        for (let unit in forceTabFactors) {
+            if (unit !== type) {
+                const targetInput = document.getElementById('f-' + unit);
+                if (targetInput) {
+                    targetInput.value = Number((baseKgf * forceTabFactors[unit]).toFixed(6));
+                }
+            }
+        }
+    }
+
+    // 초기 구동 시스템
+    window.onload = function() {
+        initForce();
+        calcHB(1);
+    };
 </script>
 </body>
 </html>
